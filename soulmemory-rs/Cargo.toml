@@ -1,0 +1,38 @@
+[package]
+name = "soulmemory-rs"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+detour = "0.8.1"
+#mem-rs = { path="C:/projects/mem-rs" }
+mem-rs = { path="C:/projects/mem-rs" }
+chrono = "0.4.19"
+lazy_static = "1.4.0"
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+imgui = "0.8.0"
+hudhook = "0.2.0"
+
+log = "0.4.17"
+log4rs = {version = "1.1.1", features = ["all_components" ] }
+
+[dependencies.windows]
+version = "0.39.0"
+features = [
+    "Win32_Foundation",
+    "Win32_System_Memory",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_ProcessStatus",
+    "Win32_System_Threading",
+    "Win32_System_Console",
+    "Win32_System_SystemServices",
+    "Win32_System_LibraryLoader",
+    "Win32_Security",
+    "Win32_UI_Input_XboxController",
+]

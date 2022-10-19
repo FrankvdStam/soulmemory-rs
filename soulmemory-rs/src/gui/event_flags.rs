@@ -144,7 +144,6 @@ impl EventFlagWidget
                     {
                         delete_flag_index = Some(i);
                     }
-
                 }
 
                 if let Some(index) = delete_flag_index
@@ -194,10 +193,10 @@ impl Widget for EventFlagWidget
         {
             match self.selected_log_mode_index
             {
-                0 =>
+                0 => //let everything through
                 {
                     self.event_flags.push((f, format!("{} - {: >10} - {}", f.0.format("%Y-%m-%d %H:%M:%S%.3f"), f.1, f.2)));
-                } //let everything through
+                }
 
                 //Unique flags
                 1 =>
@@ -238,24 +237,15 @@ impl Widget for EventFlagWidget
                 self.unique_event_flags.clear();
             }
 
-            ui.radio_button("Use exclude list", &mut self.selected_log_mode_index, 2);
+            ui.radio_button("Use exclusions", &mut self.selected_log_mode_index, 2);
 
             if let Some(tab_bar) = ui.tab_bar("event_flags")
             {
                 self.tab_event_flag_log(ui, game);
                 self.tab_exclusions(ui, game);
                 self.tab_watch_event_flags(ui, game);
-
-
-
-
-
                 tab_bar.end();
             };
-
-
-
-
         }
     }
 }

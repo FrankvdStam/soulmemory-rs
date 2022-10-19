@@ -101,7 +101,7 @@ impl App
             }
         });
 
-        ui.show_demo_window(&mut true);
+        //ui.show_demo_window(&mut true);
     }
 }
 

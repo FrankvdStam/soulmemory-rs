@@ -8,8 +8,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 detour = "0.8.1"
+mem-rs = "0.1.2"
 #mem-rs = { path="C:/projects/mem-rs" }
-mem-rs = { path="C:/projects/mem-rs" }
 chrono = "0.4.19"
 lazy_static = "1.4.0"
 

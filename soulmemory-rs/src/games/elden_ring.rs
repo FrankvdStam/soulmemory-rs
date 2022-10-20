@@ -1,0 +1,110 @@
+// This file is part of the soulmemory-rs distribution (https://github.com/FrankvdStam/soulmemory-rs).
+// Copyright (c) 2022 Frank van der Stam.
+// https://github.com/FrankvdStam/soulmemory-rs/blob/main/LICENSE
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, version 3.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+use std::mem;
+use std::sync::{Arc, Mutex};
+use detour::static_detour;
+use log::info;
+use mem_rs::prelude::*;
+use crate::games::{DxVersion, Game};
+use crate::gui::event_flags::{EventFlag, EventFlagLogger, EventFlagWidget};
+use crate::gui::widget::Widget;
+
+static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, i32); }
+
+type FnGetEventFlag = fn(event_flag_man: u64, event_flag: u32) -> u8;
+
+pub struct EldenRing
+{
+    process: Process,
+
+    event_flags: Arc<Mutex<Vec<EventFlag>>>,
+    event_flag_man: Pointer,
+    fn_get_event_flag: FnGetEventFlag,
+}
+
+impl EldenRing
+{
+    pub fn new() -> Self
+    {
+        EldenRing
+        {
+            process: Process::new("eldenring.exe"),
+
+            event_flags: Arc::new(Mutex::new(Vec::new())),
+            event_flag_man: Pointer::default(),
+            fn_get_event_flag: |_,_|{0},
+        }
+    }
+}
+
+impl EventFlagLogger for EldenRing
+{
+    fn get_buffered_flags(&mut self) -> Vec<EventFlag>
+    {
+        let mut event_flags = self.event_flags.lock().unwrap();
+        mem::replace(&mut event_flags, Vec::new())
+    }
+
+    fn get_event_flag_state(&self, event_flag: u32) -> bool {
+        let result = (self.fn_get_event_flag)(self.event_flag_man.read_u64_rel(None), event_flag);
+        return result == 1;
+    }
+}
+
+impl Game for EldenRing
+{
+    fn refresh(&mut self) -> Result<(), String> {
+        if !self.process.is_attached()
+        {
+            unsafe
+            {
+                self.process.refresh()?;
+
+                self.event_flag_man = self.process.scan_rel("SprjEventFlagMan", "48 83 3d ? ? ? ? 00 75 46 4c 8b 05 ? ? ? ? 4c 89 44 24 40 ba 08 00 00 00 b9 c8 01 00 00", 3, 8, vec![0])?;
+
+                let set_event_flag_address = self.process.scan_abs("set_event_flag", "48 89 5c 24 08 44 8b 49 1c 44 8b d2 33 d2 41 8b c2 41 f7 f1 41 8b d8 4c 8b d9", 0, Vec::new())?.get_base_address();
+                let get_event_flag_address = self.process.scan_abs("get_event_flag", "44 8b 41 1c 44 8b da 33 d2 41 8b c3 41 f7 f0", 0, Vec::new())?.get_base_address();
+                self.fn_get_event_flag = mem::transmute(get_event_flag_address);
+
+                let event_flags = Arc::clone(&self.event_flags);
+                STATIC_DETOUR_SET_EVENT_FLAG.initialize(mem::transmute(set_event_flag_address), move |rdx: u64, event_flag_id: u32, value: i32|
+                {
+                    let mut guard = event_flags.lock().unwrap();
+                    guard.push((chrono::offset::Local::now(), event_flag_id, value == 1));
+                    STATIC_DETOUR_SET_EVENT_FLAG.call(rdx, event_flag_id, value);
+                }).unwrap().enable().unwrap();
+
+                info!("event_flag_man base address: 0x{:x}", self.event_flag_man.get_base_address());
+                info!("set event flag address     : 0x{:x}", set_event_flag_address);
+                info!("get event flag address     : 0x{:x}", get_event_flag_address);
+            }
+        }
+        else
+        {
+            self.process.refresh()?;
+        }
+        Ok(())
+    }
+
+    fn get_dx_version(&self) -> DxVersion {
+        DxVersion::Dx12
+    }
+
+    fn get_widgets(&self) -> Vec<Box<dyn Widget>> {
+        vec![Box::new(EventFlagWidget::new())]
+    }
+}

@@ -15,6 +15,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use crate::games::dark_souls_3::DarkSouls3;
+use crate::games::elden_ring::EldenRing;
 use crate::games::prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
 use crate::games::remastered::DarkSoulsRemastered;
 use crate::games::sekiro::Sekiro;
@@ -25,6 +26,7 @@ pub mod remastered;
 pub mod prepare_to_die_edition;
 pub mod dark_souls_3;
 pub mod sekiro;
+pub mod elden_ring;
 
 #[allow(dead_code)]
 pub enum DxVersion
@@ -47,6 +49,7 @@ pub enum GameEnum
     DarkSoulsRemastered(DarkSoulsRemastered),
     DarkSouls3(DarkSouls3),
     Sekiro(Sekiro),
+    EldenRing(EldenRing),
 }
 
 
@@ -60,6 +63,7 @@ impl Game for GameEnum
             GameEnum::DarkSoulsRemastered(remastered) => remastered.refresh(),
             GameEnum::DarkSouls3(ds3) => ds3.refresh(),
             GameEnum::Sekiro(sekiro) => sekiro.refresh(),
+            GameEnum::EldenRing(elden_ring) => elden_ring.refresh(),
         }
     }
 
@@ -70,6 +74,7 @@ impl Game for GameEnum
             GameEnum::DarkSoulsRemastered(remastered) => remastered.get_dx_version(),
             GameEnum::DarkSouls3(ds3) => ds3.get_dx_version(),
             GameEnum::Sekiro(sekiro) => sekiro.get_dx_version(),
+            GameEnum::EldenRing(elden_ring) => elden_ring.get_dx_version(),
         }
     }
 
@@ -80,6 +85,7 @@ impl Game for GameEnum
             GameEnum::DarkSoulsRemastered(remastered) => remastered.get_widgets(),
             GameEnum::DarkSouls3(ds3) => ds3.get_widgets(),
             GameEnum::Sekiro(sekiro) => sekiro.get_widgets(),
+            GameEnum::EldenRing(elden_ring) => elden_ring.get_widgets(),
         }
     }
 }
@@ -92,6 +98,7 @@ impl EventFlagLogger for GameEnum {
             GameEnum::DarkSoulsRemastered(remastered) => remastered.get_buffered_flags(),
             GameEnum::DarkSouls3(ds3) => ds3.get_buffered_flags(),
             GameEnum::Sekiro(sekiro) => sekiro.get_buffered_flags(),
+            GameEnum::EldenRing(elden_ring) => elden_ring.get_buffered_flags(),
         }
     }
 
@@ -102,6 +109,7 @@ impl EventFlagLogger for GameEnum {
             GameEnum::DarkSoulsRemastered(remastered) => remastered.get_event_flag_state(event_flag),
             GameEnum::DarkSouls3(ds3) => ds3.get_event_flag_state(event_flag),
             GameEnum::Sekiro(sekiro) => sekiro.get_event_flag_state(event_flag),
+            GameEnum::EldenRing(elden_ring) => elden_ring.get_event_flag_state(event_flag),
         }
     }
 }

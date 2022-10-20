@@ -16,10 +16,9 @@
 
 use std::mem;
 use std::sync::{Arc, Mutex};
-use detour::static_detour;
 use log::info;
 use mem_rs::pointer::Pointer;
-use mem_rs::prelude::{Process, ReadWrite};
+use mem_rs::prelude::{Process};
 use crate::games::{DxVersion, Game};
 use crate::gui::event_flags::{EventFlag, EventFlagLogger, EventFlagWidget};
 use crate::gui::widget::Widget;
@@ -58,7 +57,7 @@ impl EventFlagLogger for DarkSoulsPrepareToDieEdition
         mem::replace(&mut event_flags, Vec::new())
     }
 
-    fn get_event_flag_state(&self, event_flag: u32) -> bool
+    fn get_event_flag_state(&self, _event_flag: u32) -> bool
     {
         true
         //let flag = STATIC_DETOUR_GET_EVENT_FLAG.call(self.event_flag_man.read_u32_rel(None), event_flag);
@@ -73,8 +72,8 @@ impl Game for DarkSoulsPrepareToDieEdition
     {
         if !self.process.is_attached()
         {
-            unsafe
-            {
+            //unsafe
+            //{
                 self.process.refresh()?;
                 self.event_flag_man = self.process.scan_abs("event flags", "56 8B F1 8B 46 1C 50 A1 ? ? ? ? 32 C9", 8, vec![0, 0])?;
 
@@ -106,7 +105,7 @@ impl Game for DarkSoulsPrepareToDieEdition
                 info!("event_flag_man base address: 0x{:x}", self.event_flag_man.get_base_address());
                 info!("set event flag address     : 0x{:x}", set_event_flag_address);
                 info!("get event flag address     : 0x{:x}", get_event_flag_address);
-            }
+            //}
         }
         else
         {

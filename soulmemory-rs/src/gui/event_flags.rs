@@ -148,7 +148,7 @@ impl EventFlagWidget
 
                 if let Some(index) = delete_flag_index
                 {
-                    self.excluded_flags.remove(index);
+                    self.watched_flags.remove(index);
                 }
             });
 

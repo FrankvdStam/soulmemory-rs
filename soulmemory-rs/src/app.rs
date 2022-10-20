@@ -20,6 +20,7 @@ use windows::Win32::Foundation::HINSTANCE;
 use imgui::{Condition, Ui, Window};
 use crate::games::{Game, GameEnum};
 use crate::games::dark_souls_3::DarkSouls3;
+use crate::games::sekiro::Sekiro;
 use crate::games::prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
 use crate::games::remastered::DarkSoulsRemastered;
 use crate::gui::event_flags::EventFlagLogger;
@@ -69,6 +70,7 @@ impl App
             "darksouls.exe" => GameEnum::DarkSoulsPrepareToDieEdition(DarkSoulsPrepareToDieEdition::new()),
             "darksoulsremastered.exe" => GameEnum::DarkSoulsRemastered(DarkSoulsRemastered::new()),
             "darksoulsiii.exe" => GameEnum::DarkSouls3(DarkSouls3::new()),
+            "sekiro.exe" => GameEnum::Sekiro(Sekiro::new()),
             _ => panic!("unsupported process: {}", process_name.to_lowercase()),
         };
 

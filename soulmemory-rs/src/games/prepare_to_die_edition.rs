@@ -24,8 +24,8 @@ use crate::games::{DxVersion, Game};
 use crate::gui::event_flags::{EventFlag, EventFlagLogger, EventFlagWidget};
 use crate::gui::widget::Widget;
 
-static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: extern "thiscall" fn(u32, u32, u8); }
-static_detour!{ static STATIC_DETOUR_GET_EVENT_FLAG: extern "thiscall" fn(u32, u32) -> u8; }
+//static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: extern "thiscall" fn(u32, u32, u8); }
+//static_detour!{ static STATIC_DETOUR_GET_EVENT_FLAG: extern "thiscall" fn(u32, u32) -> u8; }
 
 //type FnGetEventFlag = extern "thiscall" fn(event_flag_man: u32, event_flag: u32) -> u8;
 
@@ -60,8 +60,9 @@ impl EventFlagLogger for DarkSoulsPrepareToDieEdition
 
     fn get_event_flag_state(&self, event_flag: u32) -> bool
     {
-        let flag = STATIC_DETOUR_GET_EVENT_FLAG.call(self.event_flag_man.read_u32_rel(None), event_flag);
-        return flag == 1;
+        true
+        //let flag = STATIC_DETOUR_GET_EVENT_FLAG.call(self.event_flag_man.read_u32_rel(None), event_flag);
+        //return flag == 1;
     }
 }
 
@@ -82,17 +83,17 @@ impl Game for DarkSoulsPrepareToDieEdition
 
                 //thiscall calling convention is experimental - seems like transmuting a thiscall function to an fn instance doesn't work just yet.
                 //thats why I detour the event flag read function even though I don't want to change game behavior - this gives me a detour object I can call() as if it was a fn
-                STATIC_DETOUR_GET_EVENT_FLAG.initialize(mem::transmute(get_event_flag_address), |event_flag_man: u32, event_flag: u32|{
-                    STATIC_DETOUR_GET_EVENT_FLAG.call(event_flag_man, event_flag)
-                }).unwrap().enable().unwrap();
+                //STATIC_DETOUR_GET_EVENT_FLAG.initialize(mem::transmute(get_event_flag_address), |event_flag_man: u32, event_flag: u32|{
+                //    STATIC_DETOUR_GET_EVENT_FLAG.call(event_flag_man, event_flag)
+                //}).unwrap().enable().unwrap();
 
-                let event_flags = Arc::clone(&self.event_flags);
-                STATIC_DETOUR_SET_EVENT_FLAG.initialize(mem::transmute(set_event_flag_address), move |event_flag_man: u32, event_flag: u32, value: u8|{
-                    info!("{} {} {}", event_flag_man, event_flag, value);
-                    let mut guard = event_flags.lock().unwrap();
-                    guard.push((chrono::offset::Local::now(), event_flag, value == 1));
-                    STATIC_DETOUR_SET_EVENT_FLAG.call(event_flag_man, event_flag, value)
-                }).unwrap().enable().unwrap();
+                //let event_flags = Arc::clone(&self.event_flags);
+                //STATIC_DETOUR_SET_EVENT_FLAG.initialize(mem::transmute(set_event_flag_address), move |event_flag_man: u32, event_flag: u32, value: u8|{
+                //    info!("{} {} {}", event_flag_man, event_flag, value);
+                //    let mut guard = event_flags.lock().unwrap();
+                //    guard.push((chrono::offset::Local::now(), event_flag, value == 1));
+                //    STATIC_DETOUR_SET_EVENT_FLAG.call(event_flag_man, event_flag, value)
+                //}).unwrap().enable().unwrap();
 
         //        let event_flags = Arc::clone(&self.event_flags);
         //        //STATIC_DETOUR_SET_EVENT_FLAG.initialize(mem::transmute(set_event_flag_address), move |event_flag_man: u32, event_flag_id: u32, value: u8|

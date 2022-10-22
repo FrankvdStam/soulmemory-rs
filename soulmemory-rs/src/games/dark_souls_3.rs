@@ -19,8 +19,8 @@ use std::sync::{Arc, Mutex};
 use detour::static_detour;
 use log::info;
 use mem_rs::prelude::*;
-use crate::games::{DxVersion, Game};
-use crate::gui::event_flags::{EventFlag, EventFlagLogger, EventFlagWidget};
+use crate::games::{DxVersion, EventFlag, EventFlagLogger, Game};
+use crate::gui::event_flag_widget::EventFlagWidget;
 use crate::gui::widget::Widget;
 
 static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, u8, u8); }
@@ -76,6 +76,12 @@ impl Game for DarkSouls3
 
 
                 self.event_flag_man = self.process.scan_rel("SprjEventFlagMan", "48 c7 05 ? ? ? ? 00 00 00 00 48 8b 7c 24 38 c7 46 54 ff ff ff ff 48 83 c4 20 5e c3", 3, 11, vec![0])?;
+                //.ScanRelative("playerIns", "48 8b 0d ? ? ? ? 45 33 c0 48 8d 55 e7 e8 ? ? ? ? 0f 2f 73 70 72 0d f3 ? ? ? ? ? ? ? ? 0f 11 43 70", 3, 7)
+                //.CreatePointer(out _playerIns, 0, 0x80)
+                //.CreatePointer(out _sprjChrPhysicsModule, 0, 0x40, 0x28) -> position
+                //_sprjChrPhysicsModule.ReadFloat(0x80),
+                //_sprjChrPhysicsModule.ReadFloat(0x84),
+                //_sprjChrPhysicsModule.ReadFloat(0x88)
 
                 let set_event_flag_address = self.process.scan_abs("set_event_flag", "40 55 57 41 54 41 57 48 83 ec 58 80 b9 28 02 00 00 00 45 0f b6 f9 45 0f b6 e0 8b ea 48 8b f9", 0, Vec::new())?.get_base_address();
                 let get_event_flag_address = self.process.scan_abs("get_event_flag", "40 53 48 83 ec 20 80 b9 28 02 00 00 00 8b da 74 4d", 0, Vec::new())?.get_base_address();

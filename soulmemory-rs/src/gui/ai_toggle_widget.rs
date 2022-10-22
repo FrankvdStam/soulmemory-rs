@@ -20,20 +20,20 @@ use crate::games::{GameEnum};
 use crate::gui::widget::Widget;
 use crate::tas::toggle_mode::ToggleMode;
 
-pub struct AiToggle
+pub struct AiToggleWidget
 {
     selected_toggle_mode_index: u32,
 }
 
-impl AiToggle
+impl AiToggleWidget
 {
     pub fn new() -> Self
     {
-        AiToggle{ selected_toggle_mode_index: 0}
+        AiToggleWidget { selected_toggle_mode_index: 0}
     }
 }
 
-impl Widget for AiToggle
+impl Widget for AiToggleWidget
 {
     fn render(&mut self, game: &mut GameEnum, ui: &Ui, _flags: &ImguiRenderLoopFlags)
     {

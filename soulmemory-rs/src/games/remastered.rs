@@ -21,10 +21,10 @@ use log::info;
 use mem_rs::prelude::*;
 use windows::Win32::UI::Input::XboxController::XINPUT_STATE;
 use crate::App;
-use crate::games::{DxVersion, Game, GameEnum};
-use crate::gui::event_flags::{EventFlag, EventFlagLogger, EventFlagWidget};
+use crate::games::{DxVersion, EventFlag, EventFlagLogger, Game, GameEnum};
 use crate::gui::widget::Widget;
-use crate::gui::ai_toggle::AiToggle;
+use crate::gui::ai_toggle_widget::AiToggleWidget;
+use crate::gui::event_flag_widget::EventFlagWidget;
 use crate::tas::tas::{get_xinput_get_state_fn, tas_ai_toggle};
 use crate::tas::toggle_mode::ToggleMode;
 
@@ -151,7 +151,7 @@ impl Game for DarkSoulsRemastered
 
     fn get_widgets(&self) -> Vec<Box<dyn Widget>>
     {
-        vec![Box::new(EventFlagWidget::new()), Box::new(AiToggle::new())]
+        vec![Box::new(EventFlagWidget::new()), Box::new(AiToggleWidget::new())]
     }
 }
 

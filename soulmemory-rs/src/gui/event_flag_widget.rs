@@ -14,20 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use chrono::DateTime;
-use chrono::Local;
 use hudhook::hooks::ImguiRenderLoopFlags;
 use imgui::{ChildWindow, TreeNodeFlags, Ui};
-use crate::games::{GameEnum};
+use crate::games::{EventFlag, EventFlagLogger, GameEnum};
 use crate::gui::widget::Widget;
 
-pub type EventFlag = (DateTime<Local>, u32, bool);
-
-pub trait EventFlagLogger
-{
-    fn get_buffered_flags(&mut self) -> Vec<EventFlag>;
-    fn get_event_flag_state(&self, event_flag: u32) -> bool;
-}
+const EVENT_FLAG_SCROLL_REGION_HEIGHT: f32 = 400.0f32;
 
 pub struct EventFlagWidget
 {
@@ -59,12 +51,7 @@ impl EventFlagWidget
             watch_flag_input: String::new(),
         }
     }
-}
 
-const EVENT_FLAG_SCROLL_REGION_HEIGHT: f32 = 400.0f32;
-
-impl EventFlagWidget
-{
     fn tab_event_flag_log(&mut self, ui: &Ui, _game: &mut GameEnum)
     {
         if let Some(log) = ui.tab_item("Log")

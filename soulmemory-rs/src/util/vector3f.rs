@@ -14,7 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-pub(crate) mod log;
-pub(crate) mod console;
-pub(crate) mod server;
-pub mod vector3f;
+use std::fmt;
+use std::fmt::Display;
+
+#[derive(Copy, Clone)]
+pub struct Vector3f
+{
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
+
+impl Display for Vector3f
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
+    {
+        write!(f, "({}, {}, {})", self.x, self.y, self.z)
+    }
+}
+
+impl Default for Vector3f
+{
+    fn default() -> Self
+    {
+        Vector3f{x: 0.0f32, y: 0.0f32 , z: 0.0f32}
+    }
+}
+
+impl Vector3f
+{
+    pub fn new(x: f32, y: f32, z: f32) -> Self
+    {
+        Vector3f{ x, y, z}
+    }
+}

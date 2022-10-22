@@ -15,6 +15,8 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 pub(crate) mod render_hooks;
-pub(crate) mod event_flags;
+pub(crate) mod event_flag_widget;
 pub(crate) mod widget;
-pub(crate) mod ai_toggle;
+pub(crate) mod ai_toggle_widget;
+pub(crate) mod basic_position_widget;
+pub(crate) mod sekiro_chr_dbg_flags_widget;

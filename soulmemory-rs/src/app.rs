@@ -18,13 +18,12 @@ use std::sync::{Arc, Mutex};
 use hudhook::hooks::ImguiRenderLoopFlags;
 use windows::Win32::Foundation::HINSTANCE;
 use imgui::{Condition, Ui, Window};
-use crate::games::{Game, GameEnum};
+use crate::games::{EventFlagLogger, Game, GameEnum};
 use crate::games::dark_souls_3::DarkSouls3;
 use crate::games::sekiro::Sekiro;
 use crate::games::elden_ring::EldenRing;
 use crate::games::prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
 use crate::games::remastered::DarkSoulsRemastered;
-use crate::gui::event_flags::EventFlagLogger;
 use crate::gui::widget::Widget;
 use crate::util::server::Server;
 

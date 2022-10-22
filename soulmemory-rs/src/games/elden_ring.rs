@@ -19,8 +19,8 @@ use std::sync::{Arc, Mutex};
 use detour::static_detour;
 use log::info;
 use mem_rs::prelude::*;
-use crate::games::{DxVersion, Game};
-use crate::gui::event_flags::{EventFlag, EventFlagLogger, EventFlagWidget};
+use crate::games::{DxVersion, EventFlag, EventFlagLogger, Game};
+use crate::gui::event_flag_widget::EventFlagWidget;
 use crate::gui::widget::Widget;
 
 static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, i32); }

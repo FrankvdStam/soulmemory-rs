@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+use chrono::{DateTime, Local};
 use crate::games::dark_souls_3::DarkSouls3;
 use crate::games::elden_ring::EldenRing;
 use crate::games::prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
 use crate::games::remastered::DarkSoulsRemastered;
 use crate::games::sekiro::Sekiro;
-use crate::gui::event_flags::{EventFlag, EventFlagLogger};
 use crate::gui::widget::Widget;
+use crate::util::vector3f::Vector3f;
 
 pub mod remastered;
 pub mod prepare_to_die_edition;
@@ -36,7 +37,21 @@ pub enum DxVersion
     Dx12,
 }
 
-pub trait Game : EventFlagLogger
+pub type EventFlag = (DateTime<Local>, u32, bool);
+
+pub trait EventFlagLogger
+{
+    fn get_buffered_flags(&mut self) -> Vec<EventFlag>;
+    fn get_event_flag_state(&self, event_flag: u32) -> bool;
+}
+
+pub trait BasicPlayerPosition
+{
+    fn get_position(&self) -> Vector3f;
+    fn set_position(&self, position: &Vector3f);
+}
+
+pub trait Game
 {
     fn refresh(&mut self) -> Result<(), String>;
     fn get_dx_version(&self) -> DxVersion;
@@ -52,7 +67,17 @@ pub enum GameEnum
     EldenRing(EldenRing),
 }
 
-
+impl GameEnum
+{
+    pub(crate) fn borrow_sekiro(&self) -> &Sekiro
+    {
+        match self
+        {
+            GameEnum::Sekiro(sekiro) => sekiro,
+            _ => panic!("attempt to borrow sekiro")
+        }
+    }
+}
 
 impl Game for GameEnum
 {
@@ -94,7 +119,7 @@ impl EventFlagLogger for GameEnum {
     fn get_buffered_flags(&mut self) -> Vec<EventFlag> {
         match self
         {
-            GameEnum::DarkSoulsPrepareToDieEdition(ptde) => ptde.get_buffered_flags(),
+            GameEnum::DarkSoulsPrepareToDieEdition(_) => panic!("EventFlagLogger not available in PTDE"),
             GameEnum::DarkSoulsRemastered(remastered) => remastered.get_buffered_flags(),
             GameEnum::DarkSouls3(ds3) => ds3.get_buffered_flags(),
             GameEnum::Sekiro(sekiro) => sekiro.get_buffered_flags(),
@@ -105,11 +130,36 @@ impl EventFlagLogger for GameEnum {
     fn get_event_flag_state(&self, event_flag: u32) -> bool {
         match self
         {
-            GameEnum::DarkSoulsPrepareToDieEdition(ptde) => ptde.get_event_flag_state(event_flag),
+            GameEnum::DarkSoulsPrepareToDieEdition(_) => panic!("EventFlagLogger not available in PTDE"),
             GameEnum::DarkSoulsRemastered(remastered) => remastered.get_event_flag_state(event_flag),
             GameEnum::DarkSouls3(ds3) => ds3.get_event_flag_state(event_flag),
             GameEnum::Sekiro(sekiro) => sekiro.get_event_flag_state(event_flag),
             GameEnum::EldenRing(elden_ring) => elden_ring.get_event_flag_state(event_flag),
+        }
+    }
+}
+
+impl BasicPlayerPosition for GameEnum
+{
+    fn get_position(&self) -> Vector3f {
+        match self
+        {
+            GameEnum::DarkSoulsPrepareToDieEdition(_) => panic!("BasicPlayerPosition not available in PTDE"),
+            GameEnum::DarkSoulsRemastered(_) => panic!("BasicPlayerPosition not available in remastered"),
+            GameEnum::DarkSouls3(_) => panic!("BasicPlayerPosition not available in ds3"),
+            GameEnum::Sekiro(sekiro) => sekiro.get_position(),
+            GameEnum::EldenRing(_) => panic!("BasicPlayerPosition not available in elden ring"),
+        }
+    }
+
+    fn set_position(&self, position: &Vector3f) {
+        match self
+        {
+            GameEnum::DarkSoulsPrepareToDieEdition(_) => panic!("BasicPlayerPosition not available in PTDE"),
+            GameEnum::DarkSoulsRemastered(_) => panic!("BasicPlayerPosition not available in remastered"),
+            GameEnum::DarkSouls3(_) => panic!("BasicPlayerPosition not available in ds3"),
+            GameEnum::Sekiro(sekiro) => sekiro.set_position(position),
+            GameEnum::EldenRing(_) => panic!("BasicPlayerPosition not available in elden ring"),
         }
     }
 }

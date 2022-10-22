@@ -14,13 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use std::mem;
 use std::sync::{Arc, Mutex};
 use log::info;
 use mem_rs::pointer::Pointer;
 use mem_rs::prelude::{Process};
-use crate::games::{DxVersion, Game};
-use crate::gui::event_flags::{EventFlag, EventFlagLogger, EventFlagWidget};
+use crate::games::{DxVersion, EventFlag, Game};
+use crate::gui::event_flag_widget::EventFlagWidget;
 use crate::gui::widget::Widget;
 
 //static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: extern "thiscall" fn(u32, u32, u8); }
@@ -32,6 +31,7 @@ pub struct DarkSoulsPrepareToDieEdition
 {
     process: Process,
     event_flag_man: Pointer,
+    #[allow(dead_code)]
     event_flags: Arc<Mutex<Vec<EventFlag>>>,
 }
 
@@ -49,22 +49,21 @@ impl DarkSoulsPrepareToDieEdition
     }
 }
 
-impl EventFlagLogger for DarkSoulsPrepareToDieEdition
-{
-    fn get_buffered_flags(&mut self) -> Vec<EventFlag>
-    {
-        let mut event_flags = self.event_flags.lock().unwrap();
-        mem::replace(&mut event_flags, Vec::new())
-    }
-
-    fn get_event_flag_state(&self, _event_flag: u32) -> bool
-    {
-        true
-        //let flag = STATIC_DETOUR_GET_EVENT_FLAG.call(self.event_flag_man.read_u32_rel(None), event_flag);
-        //return flag == 1;
-    }
-}
-
+//impl EventFlagLogger for DarkSoulsPrepareToDieEdition
+//{
+//    fn get_buffered_flags(&mut self) -> Vec<EventFlag>
+//    {
+//        let mut event_flags = self.event_flags.lock().unwrap();
+//        mem::replace(&mut event_flags, Vec::new())
+//    }
+//
+//    fn get_event_flag_state(&self, _event_flag: u32) -> bool
+//    {
+//        true
+//        //let flag = STATIC_DETOUR_GET_EVENT_FLAG.call(self.event_flag_man.read_u32_rel(None), event_flag);
+//        //return flag == 1;
+//    }
+//}
 
 impl Game for DarkSoulsPrepareToDieEdition
 {

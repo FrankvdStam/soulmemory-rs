@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 soulmemory-rs = { path = "../soulmemory-rs" }
-mem-rs = "0.1.2"
+mem-rs = "0.1.3"
 #mem-rs = { path="C:/projects/mem-rs" }

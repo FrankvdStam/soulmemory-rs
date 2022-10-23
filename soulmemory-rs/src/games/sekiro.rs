@@ -14,16 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use std::collections::HashMap;
 use std::mem;
 use std::sync::{Arc, Mutex};
 use detour::static_detour;
 use log::info;
 use mem_rs::prelude::*;
-use crate::games::{BasicPlayerPosition, DxVersion, EventFlag, EventFlagLogger, Game};
+use crate::games::{BasicPlayerPosition, ChrDbgFlag, DxVersion, EventFlag, EventFlagLogger, Game, GetSetChrDbgFlags};
 use crate::gui::basic_position_widget::BasicPositionsWidget;
 use crate::gui::event_flag_widget::EventFlagWidget;
-use crate::gui::sekiro_chr_dbg_flags_widget::SekiroChrDbgFlagsWidget;
+use crate::gui::chr_dbg_flags_widget::ChrDbgFlagsWidget;
 use crate::gui::widget::Widget;
 use crate::util::vector3f::Vector3f;
 
@@ -50,6 +49,7 @@ pub enum SekiroChrDbgFlag
     AllNoMove = 15,
     AllNoUpdateAi = 16,
 }
+
 
 pub struct Sekiro
 {
@@ -78,35 +78,70 @@ impl Sekiro
     }
 
 
-    pub fn get_chr_dbg_flags(&self) -> HashMap<SekiroChrDbgFlag, bool>
+    //pub fn get_chr_dbg_flags(&self) -> HashMap<SekiroChrDbgFlag, bool>
+    //{
+    //    if self.process.is_attached()
+    //    {
+    //        let mut buffer = [0u8; 17];
+    //        self.chr_dbg_flags.read_memory_rel(None, &mut buffer);
+//
+    //        let mut result = HashMap::new();
+    //        result.insert(SekiroChrDbgFlag::PlayerNoDead               , buffer[SekiroChrDbgFlag::PlayerNoDead                   as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::PlayerExterminate          , buffer[SekiroChrDbgFlag::PlayerExterminate              as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::PlayerExterminateStamina   , buffer[SekiroChrDbgFlag::PlayerExterminateStamina       as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::PlayerNoGoodsConsume       , buffer[SekiroChrDbgFlag::PlayerNoGoodsConsume           as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::PlayerNoResourceItemConsume, buffer[SekiroChrDbgFlag::PlayerNoResourceItemConsume    as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::PlayerNoRevivalConsume     , buffer[SekiroChrDbgFlag::PlayerNoRevivalConsume         as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::PlayerHide                 , buffer[SekiroChrDbgFlag::PlayerHide                     as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::PlayerSilenced             , buffer[SekiroChrDbgFlag::PlayerSilenced                 as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::AllNoDead                  , buffer[SekiroChrDbgFlag::AllNoDead                      as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::AllNoDamage                , buffer[SekiroChrDbgFlag::AllNoDamage                    as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::AllNoHit                   , buffer[SekiroChrDbgFlag::AllNoHit                       as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::AllNoAttack                , buffer[SekiroChrDbgFlag::AllNoAttack                    as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::AllNoMove                  , buffer[SekiroChrDbgFlag::AllNoMove                      as usize] == 1);
+    //        result.insert(SekiroChrDbgFlag::AllNoUpdateAi              , buffer[SekiroChrDbgFlag::AllNoUpdateAi                  as usize] == 1);
+    //        return result;
+//
+    //    }
+    //    HashMap::new()
+    //}
+//
+    //pub fn set_chr_dbg_flag(&self, flag: SekiroChrDbgFlag, value: bool)
+    //{
+    //    if self.process.is_attached()
+    //    {
+    //        let value = match value{ true => 1, false => 0};
+    //        self.chr_dbg_flags.write_u8_rel(Some(flag as usize), value);
+    //    }
+    //}
+}
+
+impl GetSetChrDbgFlags for Sekiro
+{
+    fn get_flags(&self) -> Vec<ChrDbgFlag>
     {
-        if self.process.is_attached()
-        {
-            let mut buffer = [0u8; 17];
-            self.chr_dbg_flags.read_memory_rel(None, &mut buffer);
+        let mut buffer = [0u8; 17];
+        self.chr_dbg_flags.read_memory_rel(None, &mut buffer);
 
-            let mut result = HashMap::new();
-            result.insert(SekiroChrDbgFlag::PlayerNoDead               , buffer[SekiroChrDbgFlag::PlayerNoDead                   as usize] == 1);
-            result.insert(SekiroChrDbgFlag::PlayerExterminate          , buffer[SekiroChrDbgFlag::PlayerExterminate              as usize] == 1);
-            result.insert(SekiroChrDbgFlag::PlayerExterminateStamina   , buffer[SekiroChrDbgFlag::PlayerExterminateStamina       as usize] == 1);
-            result.insert(SekiroChrDbgFlag::PlayerNoGoodsConsume       , buffer[SekiroChrDbgFlag::PlayerNoGoodsConsume           as usize] == 1);
-            result.insert(SekiroChrDbgFlag::PlayerNoResourceItemConsume, buffer[SekiroChrDbgFlag::PlayerNoResourceItemConsume    as usize] == 1);
-            result.insert(SekiroChrDbgFlag::PlayerNoRevivalConsume     , buffer[SekiroChrDbgFlag::PlayerNoRevivalConsume         as usize] == 1);
-            result.insert(SekiroChrDbgFlag::PlayerHide                 , buffer[SekiroChrDbgFlag::PlayerHide                     as usize] == 1);
-            result.insert(SekiroChrDbgFlag::PlayerSilenced             , buffer[SekiroChrDbgFlag::PlayerSilenced                 as usize] == 1);
-            result.insert(SekiroChrDbgFlag::AllNoDead                  , buffer[SekiroChrDbgFlag::AllNoDead                      as usize] == 1);
-            result.insert(SekiroChrDbgFlag::AllNoDamage                , buffer[SekiroChrDbgFlag::AllNoDamage                    as usize] == 1);
-            result.insert(SekiroChrDbgFlag::AllNoHit                   , buffer[SekiroChrDbgFlag::AllNoHit                       as usize] == 1);
-            result.insert(SekiroChrDbgFlag::AllNoAttack                , buffer[SekiroChrDbgFlag::AllNoAttack                    as usize] == 1);
-            result.insert(SekiroChrDbgFlag::AllNoMove                  , buffer[SekiroChrDbgFlag::AllNoMove                      as usize] == 1);
-            result.insert(SekiroChrDbgFlag::AllNoUpdateAi              , buffer[SekiroChrDbgFlag::AllNoUpdateAi                  as usize] == 1);
-            return result;
-
-        }
-        HashMap::new()
+        let mut result = Vec::new();
+        result.push((SekiroChrDbgFlag::PlayerNoDead                as u32, String::from("Player No Dead")                 , buffer[SekiroChrDbgFlag::PlayerNoDead                   as usize] == 1));
+        result.push((SekiroChrDbgFlag::PlayerExterminate           as u32, String::from("Player Exterminate")             , buffer[SekiroChrDbgFlag::PlayerExterminate              as usize] == 1));
+        result.push((SekiroChrDbgFlag::PlayerExterminateStamina    as u32, String::from("Player Exterminate Stamina")     , buffer[SekiroChrDbgFlag::PlayerExterminateStamina       as usize] == 1));
+        result.push((SekiroChrDbgFlag::PlayerNoGoodsConsume        as u32, String::from("Player No Goods Consume")        , buffer[SekiroChrDbgFlag::PlayerNoGoodsConsume           as usize] == 1));
+        result.push((SekiroChrDbgFlag::PlayerNoResourceItemConsume as u32, String::from("Player No Resource Item Consume"), buffer[SekiroChrDbgFlag::PlayerNoResourceItemConsume    as usize] == 1));
+        result.push((SekiroChrDbgFlag::PlayerNoRevivalConsume      as u32, String::from("Player No Revival Consume")      , buffer[SekiroChrDbgFlag::PlayerNoRevivalConsume         as usize] == 1));
+        result.push((SekiroChrDbgFlag::PlayerHide                  as u32, String::from("Player Hide")                    , buffer[SekiroChrDbgFlag::PlayerHide                     as usize] == 1));
+        result.push((SekiroChrDbgFlag::PlayerSilenced              as u32, String::from("Player Silenced")                , buffer[SekiroChrDbgFlag::PlayerSilenced                 as usize] == 1));
+        result.push((SekiroChrDbgFlag::AllNoDead                   as u32, String::from("All No Dead")                    , buffer[SekiroChrDbgFlag::AllNoDead                      as usize] == 1));
+        result.push((SekiroChrDbgFlag::AllNoDamage                 as u32, String::from("All No Damage")                  , buffer[SekiroChrDbgFlag::AllNoDamage                    as usize] == 1));
+        result.push((SekiroChrDbgFlag::AllNoHit                    as u32, String::from("All No Hit")                     , buffer[SekiroChrDbgFlag::AllNoHit                       as usize] == 1));
+        result.push((SekiroChrDbgFlag::AllNoAttack                 as u32, String::from("All No Attack")                  , buffer[SekiroChrDbgFlag::AllNoAttack                    as usize] == 1));
+        result.push((SekiroChrDbgFlag::AllNoMove                   as u32, String::from("All No Move")                    , buffer[SekiroChrDbgFlag::AllNoMove                      as usize] == 1));
+        result.push((SekiroChrDbgFlag::AllNoUpdateAi               as u32, String::from("All No Update Ai")               , buffer[SekiroChrDbgFlag::AllNoUpdateAi                  as usize] == 1));
+        return result;
     }
 
-    pub fn set_chr_dbg_flag(&self, flag: SekiroChrDbgFlag, value: bool)
+    fn set_flag(&self, flag: u32, value: bool)
     {
         if self.process.is_attached()
         {
@@ -198,6 +233,6 @@ impl Game for Sekiro
     }
 
     fn get_widgets(&self) -> Vec<Box<dyn Widget>> {
-        vec![Box::new(EventFlagWidget::new()), Box::new(BasicPositionsWidget::new()), Box::new(SekiroChrDbgFlagsWidget::new())]
+        vec![Box::new(EventFlagWidget::new()), Box::new(BasicPositionsWidget::new()), Box::new(ChrDbgFlagsWidget::new())]
     }
 }

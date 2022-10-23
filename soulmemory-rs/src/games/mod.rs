@@ -19,7 +19,7 @@ use crate::games::dark_souls_3::DarkSouls3;
 use crate::games::elden_ring::EldenRing;
 use crate::games::prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
 use crate::games::remastered::DarkSoulsRemastered;
-use crate::games::sekiro::Sekiro;
+use crate::games::sekiro::{Sekiro};
 use crate::gui::widget::Widget;
 use crate::util::vector3f::Vector3f;
 
@@ -38,6 +38,7 @@ pub enum DxVersion
 }
 
 pub type EventFlag = (DateTime<Local>, u32, bool);
+pub type ChrDbgFlag = (u32, String, bool);
 
 pub trait EventFlagLogger
 {
@@ -49,6 +50,12 @@ pub trait BasicPlayerPosition
 {
     fn get_position(&self) -> Vector3f;
     fn set_position(&self, position: &Vector3f);
+}
+
+pub trait GetSetChrDbgFlags
+{
+    fn get_flags(&self) -> Vec<ChrDbgFlag>;
+    fn set_flag(&self, flag: u32, value: bool);
 }
 
 pub trait Game
@@ -67,17 +74,17 @@ pub enum GameEnum
     EldenRing(EldenRing),
 }
 
-impl GameEnum
-{
-    pub(crate) fn borrow_sekiro(&self) -> &Sekiro
-    {
-        match self
-        {
-            GameEnum::Sekiro(sekiro) => sekiro,
-            _ => panic!("attempt to borrow sekiro")
-        }
-    }
-}
+//impl GameEnum
+//{
+//    pub(crate) fn borrow_sekiro(&self) -> &Sekiro
+//    {
+//        match self
+//        {
+//            GameEnum::Sekiro(sekiro) => sekiro,
+//            _ => panic!("attempt to borrow sekiro")
+//        }
+//    }
+//}
 
 impl Game for GameEnum
 {
@@ -160,6 +167,25 @@ impl BasicPlayerPosition for GameEnum
             GameEnum::DarkSouls3(_) => panic!("BasicPlayerPosition not available in ds3"),
             GameEnum::Sekiro(sekiro) => sekiro.set_position(position),
             GameEnum::EldenRing(_) => panic!("BasicPlayerPosition not available in elden ring"),
+        }
+    }
+}
+
+impl GetSetChrDbgFlags for GameEnum
+{
+    fn get_flags(&self) -> Vec<ChrDbgFlag> {
+        match self
+        {
+            GameEnum::Sekiro(sekiro) => sekiro.get_flags(),
+            _ => panic!("GetSetChrDbgFlags not supported."),
+        }
+    }
+
+    fn set_flag(&self, flag: u32, value: bool) {
+        match self
+        {
+            GameEnum::Sekiro(sekiro) => sekiro.set_flag(flag, value),
+            _ => panic!("GetSetChrDbgFlags not supported."),
         }
     }
 }

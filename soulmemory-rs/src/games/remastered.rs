@@ -32,8 +32,8 @@ static_detour!{ static STATIC_DETOUR_UPDATE_IGT: unsafe extern "C" fn(f32); }
 static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, u8, u8); }
 static_detour!{ static STATIC_DETOUR_XINPUT_GET_STATE: unsafe extern "system" fn(u32, *mut XINPUT_STATE) -> u32; }
 
-type FnGetEventFlag = fn(event_flag_man: u64, event_flag: u32) -> u8;
 
+type FnGetEventFlag = fn(event_flag_man: u64, event_flag: u32) -> u8;
 pub struct DarkSoulsRemastered
 {
     process: Process,

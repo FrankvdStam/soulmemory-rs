@@ -14,25 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+use std::mem;
 use std::sync::{Arc, Mutex};
 use log::info;
 use mem_rs::pointer::Pointer;
-use mem_rs::prelude::{Process};
-use crate::games::{DxVersion, EventFlag, Game};
+use mem_rs::prelude::{Process, ReadWrite};
+use crate::games::{DxVersion, EventFlag, EventFlagLogger, Game, GameEnum};
 use crate::gui::event_flag_widget::EventFlagWidget;
 use crate::gui::widget::Widget;
-
-//static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: extern "thiscall" fn(u32, u32, u8); }
-//static_detour!{ static STATIC_DETOUR_GET_EVENT_FLAG: extern "thiscall" fn(u32, u32) -> u8; }
-
-//type FnGetEventFlag = extern "thiscall" fn(event_flag_man: u32, event_flag: u32) -> u8;
+use ilhook::x86::{Hooker, HookType, Registers, CallbackOption, HookFlags, HookPoint};
+use crate::App;
+use crate::util::{get_stack_u32, get_stack_u8};
 
 pub struct DarkSoulsPrepareToDieEdition
 {
     process: Process,
     event_flag_man: Pointer,
-    #[allow(dead_code)]
     event_flags: Arc<Mutex<Vec<EventFlag>>>,
+    set_event_flag_hook: Option<HookPoint>,
 }
 
 impl DarkSoulsPrepareToDieEdition
@@ -42,28 +41,29 @@ impl DarkSoulsPrepareToDieEdition
         DarkSoulsPrepareToDieEdition
         {
             process: Process::new("darksouls.exe"),
-
             event_flag_man: Pointer::default(),
             event_flags: Arc::new(Mutex::new(Vec::new())),
+            set_event_flag_hook: None,
         }
     }
 }
 
-//impl EventFlagLogger for DarkSoulsPrepareToDieEdition
-//{
-//    fn get_buffered_flags(&mut self) -> Vec<EventFlag>
-//    {
-//        let mut event_flags = self.event_flags.lock().unwrap();
-//        mem::replace(&mut event_flags, Vec::new())
-//    }
-//
-//    fn get_event_flag_state(&self, _event_flag: u32) -> bool
-//    {
-//        true
-//        //let flag = STATIC_DETOUR_GET_EVENT_FLAG.call(self.event_flag_man.read_u32_rel(None), event_flag);
-//        //return flag == 1;
-//    }
-//}
+impl EventFlagLogger for DarkSoulsPrepareToDieEdition
+{
+    fn get_buffered_flags(&mut self) -> Vec<EventFlag>
+    {
+        let mut event_flags = self.event_flags.lock().unwrap();
+        mem::replace(&mut event_flags, Vec::new())
+    }
+
+    fn get_event_flag_state(&self, event_flag: u32) -> bool
+    {
+        let (offset, mask) = get_event_flag_offset(event_flag);
+        let value = self.event_flag_man.read_u32_rel(Some(offset)) as usize;
+        return (value & mask) != 0;
+    }
+}
+
 
 impl Game for DarkSoulsPrepareToDieEdition
 {
@@ -71,40 +71,33 @@ impl Game for DarkSoulsPrepareToDieEdition
     {
         if !self.process.is_attached()
         {
-            //unsafe
-            //{
+            unsafe
+            {
                 self.process.refresh()?;
-                self.event_flag_man = self.process.scan_abs("event flags", "56 8B F1 8B 46 1C 50 A1 ? ? ? ? 32 C9", 8, vec![0, 0])?;
-
+                self.event_flag_man = self.process.scan_abs("event flags", "56 8B F1 8B 46 1C 50 A1 ? ? ? ? 32 C9", 8, vec![0, 0, 0])?;
                 let set_event_flag_address = self.process.scan_abs("set_event_flag", "80 b8 14 01 00 00 00 56 8b 74 24 08 74 ? 57 51 50", 0, Vec::new())?.get_base_address();
-                let get_event_flag_address = self.process.scan_abs("set_event_flag", "53 32 db 56 8b 74 24 0c 38 98 14 01 00 00", 0, Vec::new())?.get_base_address();
 
-                //thiscall calling convention is experimental - seems like transmuting a thiscall function to an fn instance doesn't work just yet.
-                //thats why I detour the event flag read function even though I don't want to change game behavior - this gives me a detour object I can call() as if it was a fn
-                //STATIC_DETOUR_GET_EVENT_FLAG.initialize(mem::transmute(get_event_flag_address), |event_flag_man: u32, event_flag: u32|{
-                //    STATIC_DETOUR_GET_EVENT_FLAG.call(event_flag_man, event_flag)
-                //}).unwrap().enable().unwrap();
+                unsafe extern "cdecl" fn capture_the_flag(reg:*mut Registers, _:usize)
+                {
+                    let instance = App::get_instance();
+                    let app = instance.lock().unwrap();
 
-                //let event_flags = Arc::clone(&self.event_flags);
-                //STATIC_DETOUR_SET_EVENT_FLAG.initialize(mem::transmute(set_event_flag_address), move |event_flag_man: u32, event_flag: u32, value: u8|{
-                //    info!("{} {} {}", event_flag_man, event_flag, value);
-                //    let mut guard = event_flags.lock().unwrap();
-                //    guard.push((chrono::offset::Local::now(), event_flag, value == 1));
-                //    STATIC_DETOUR_SET_EVENT_FLAG.call(event_flag_man, event_flag, value)
-                //}).unwrap().enable().unwrap();
+                    if let GameEnum::DarkSoulsPrepareToDieEdition(ptde) = &app.game
+                    {
+                        let value           = get_stack_u8((*reg).esp, 0x8);
+                        let event_flag_id   = get_stack_u32((*reg).esp, 0x4);
 
-        //        let event_flags = Arc::clone(&self.event_flags);
-        //        //STATIC_DETOUR_SET_EVENT_FLAG.initialize(mem::transmute(set_event_flag_address), move |event_flag_man: u32, event_flag_id: u32, value: u8|
-        //        //{
-        //        //    let mut guard = event_flags.lock().unwrap();
-        //        //    guard.push((chrono::offset::Local::now(), event_flag_id, value == 1));
-        //        //    STATIC_DETOUR_SET_EVENT_FLAG.call(event_flag_man, event_flag_id, value);
-        //        //}).unwrap().enable().unwrap();
+                        let mut guard = ptde.event_flags.lock().unwrap();
+                        guard.push((chrono::offset::Local::now(), event_flag_id, value != 0));
+                    }
+                }
+
+                let h = Hooker::new(set_event_flag_address, HookType::JmpBack(capture_the_flag), CallbackOption::None, HookFlags::empty());
+                self.set_event_flag_hook = Some(h.hook().unwrap());
 
                 info!("event_flag_man base address: 0x{:x}", self.event_flag_man.get_base_address());
                 info!("set event flag address     : 0x{:x}", set_event_flag_address);
-                info!("get event flag address     : 0x{:x}", get_event_flag_address);
-            //}
+            }
         }
         else
         {
@@ -121,3 +114,62 @@ impl Game for DarkSoulsPrepareToDieEdition
     }
 }
 
+//Credit to JKAnderson for the event flag reading code, https://github.com/JKAnderson/DS-Gadget
+//Implementing it this way over calling the read event flag function, because it is a custom calling convention
+fn get_event_flag_group(group: &String) -> usize
+{
+    return match group.as_str()
+    {
+        "0" => 0x00000,
+        "1" => 0x00500,
+        "5" => 0x05F00,
+        "6" => 0x0B900,
+        "7" => 0x11300,
+        _ => panic!("Invalid group {}", group),
+    }
+}
+
+fn get_event_flag_area(area: &String) -> usize
+{
+    return match area.as_str()
+    {
+        "000" => 00,
+        "100" => 01,
+        "101" => 02,
+        "102" => 03,
+        "110" => 04,
+        "120" => 05,
+        "121" => 06,
+        "130" => 07,
+        "131" => 08,
+        "132" => 09,
+        "140" => 10,
+        "141" => 11,
+        "150" => 12,
+        "151" => 13,
+        "160" => 14,
+        "170" => 15,
+        "180" => 16,
+        "181" => 17,
+        _ => panic!("Invalid area {}", area),
+    }
+}
+
+fn get_event_flag_offset(even_flag_id: u32) -> (usize, usize)
+{
+    let flag_str = format!("{:0>8}", even_flag_id);
+    let group = flag_str[..1].to_string();
+    let area = flag_str[1..4].to_string();
+    let section_str = flag_str[4..5].to_string();
+    let number_str = flag_str[5..].to_string();
+    let section = section_str.parse::<usize>().unwrap();
+    let number = number_str.parse::<usize>().unwrap();
+
+    let mut offset = get_event_flag_group(&group);
+    offset += get_event_flag_area(&area) * 0x500;
+    offset += section * 128;
+    offset += (number - (number % 32)) / 8;
+
+    let mask = 0x80000000 >> (number % 32);
+    return (offset, mask);
+}

@@ -18,3 +18,13 @@ pub(crate) mod log;
 pub(crate) mod console;
 pub(crate) mod server;
 pub mod vector3f;
+
+pub unsafe fn get_stack_u32(esp: u32, offset: usize) -> u32
+{
+    *((esp as usize + offset) as usize as *mut u32)
+}
+
+pub unsafe fn get_stack_u8(esp: u32, offset: usize) -> u8
+{
+    *((esp as usize + offset) as usize as *mut u8)
+}

@@ -18,7 +18,7 @@ use std::sync::{Arc, Mutex};
 use hudhook::hooks::ImguiRenderLoopFlags;
 use windows::Win32::Foundation::HINSTANCE;
 use imgui::{Condition, Ui, Window};
-use crate::games::{EventFlagLogger, Game, GameEnum};
+use crate::games::{Game, GameEnum};
 use crate::games::dark_souls_3::DarkSouls3;
 use crate::games::sekiro::Sekiro;
 use crate::games::elden_ring::EldenRing;
@@ -90,7 +90,6 @@ impl App
     pub fn refresh(&mut self) -> Result<(), String>
     {
         self.game.refresh()?;
-        self.game.get_event_flag_state(16);
         Ok(())
     }
 

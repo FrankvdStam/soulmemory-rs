@@ -126,7 +126,7 @@ impl EventFlagLogger for GameEnum {
     fn get_buffered_flags(&mut self) -> Vec<EventFlag> {
         match self
         {
-            GameEnum::DarkSoulsPrepareToDieEdition(_) => panic!("EventFlagLogger not available in PTDE"),
+            GameEnum::DarkSoulsPrepareToDieEdition(ptde) => ptde.get_buffered_flags(),
             GameEnum::DarkSoulsRemastered(remastered) => remastered.get_buffered_flags(),
             GameEnum::DarkSouls3(ds3) => ds3.get_buffered_flags(),
             GameEnum::Sekiro(sekiro) => sekiro.get_buffered_flags(),
@@ -137,7 +137,7 @@ impl EventFlagLogger for GameEnum {
     fn get_event_flag_state(&self, event_flag: u32) -> bool {
         match self
         {
-            GameEnum::DarkSoulsPrepareToDieEdition(_) => panic!("EventFlagLogger not available in PTDE"),
+            GameEnum::DarkSoulsPrepareToDieEdition(ptde) => ptde.get_event_flag_state(event_flag),
             GameEnum::DarkSoulsRemastered(remastered) => remastered.get_event_flag_state(event_flag),
             GameEnum::DarkSouls3(ds3) => ds3.get_event_flag_state(event_flag),
             GameEnum::Sekiro(sekiro) => sekiro.get_event_flag_state(event_flag),

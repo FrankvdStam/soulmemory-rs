@@ -90,10 +90,13 @@ impl EventFlagWidget
                 {
                     ui.text(format!("{: >10}", self.excluded_flags[i].to_string()));
                     ui.same_line();
+
+                    let id = ui.push_id(i as i32);
                     if ui.button("delete")
                     {
                         delete_flag_index = Some(i);
                     }
+                    id.end();
                 }
 
                 if let Some(index) = delete_flag_index
@@ -127,10 +130,12 @@ impl EventFlagWidget
                     ui.text(format!("{: >5}", flag_val));
                     ui.same_line();
 
+                    let id = ui.push_id(i as i32);
                     if ui.button("delete")
                     {
                         delete_flag_index = Some(i);
                     }
+                    id.end();
                 }
 
                 if let Some(index) = delete_flag_index

@@ -92,10 +92,10 @@ impl Game for GameEnum
         match self
         {
             GameEnum::DarkSoulsPrepareToDieEdition(ptde) => ptde.refresh(),
-            GameEnum::DarkSoulsRemastered(remastered) => remastered.refresh(),
-            GameEnum::DarkSouls3(ds3) => ds3.refresh(),
-            GameEnum::Sekiro(sekiro) => sekiro.refresh(),
-            GameEnum::EldenRing(elden_ring) => elden_ring.refresh(),
+            GameEnum::DarkSoulsRemastered(remastered)    => remastered.refresh(),
+            GameEnum::DarkSouls3(ds3)                    => ds3.refresh(),
+            GameEnum::Sekiro(sekiro)                     => sekiro.refresh(),
+            GameEnum::EldenRing(elden_ring)              => elden_ring.refresh(),
         }
     }
 
@@ -103,10 +103,10 @@ impl Game for GameEnum
         match self
         {
             GameEnum::DarkSoulsPrepareToDieEdition(ptde) => ptde.get_dx_version(),
-            GameEnum::DarkSoulsRemastered(remastered) => remastered.get_dx_version(),
-            GameEnum::DarkSouls3(ds3) => ds3.get_dx_version(),
-            GameEnum::Sekiro(sekiro) => sekiro.get_dx_version(),
-            GameEnum::EldenRing(elden_ring) => elden_ring.get_dx_version(),
+            GameEnum::DarkSoulsRemastered(remastered)    => remastered.get_dx_version(),
+            GameEnum::DarkSouls3(ds3)                    => ds3.get_dx_version(),
+            GameEnum::Sekiro(sekiro)                     => sekiro.get_dx_version(),
+            GameEnum::EldenRing(elden_ring)              => elden_ring.get_dx_version(),
         }
     }
 
@@ -114,10 +114,10 @@ impl Game for GameEnum
         match self
         {
             GameEnum::DarkSoulsPrepareToDieEdition(ptde) => ptde.get_widgets(),
-            GameEnum::DarkSoulsRemastered(remastered) => remastered.get_widgets(),
-            GameEnum::DarkSouls3(ds3) => ds3.get_widgets(),
-            GameEnum::Sekiro(sekiro) => sekiro.get_widgets(),
-            GameEnum::EldenRing(elden_ring) => elden_ring.get_widgets(),
+            GameEnum::DarkSoulsRemastered(remastered)    => remastered.get_widgets(),
+            GameEnum::DarkSouls3(ds3)                    => ds3.get_widgets(),
+            GameEnum::Sekiro(sekiro)                     => sekiro.get_widgets(),
+            GameEnum::EldenRing(elden_ring)              => elden_ring.get_widgets(),
         }
     }
 }
@@ -127,10 +127,10 @@ impl EventFlagLogger for GameEnum {
         match self
         {
             GameEnum::DarkSoulsPrepareToDieEdition(ptde) => ptde.get_buffered_flags(),
-            GameEnum::DarkSoulsRemastered(remastered) => remastered.get_buffered_flags(),
-            GameEnum::DarkSouls3(ds3) => ds3.get_buffered_flags(),
-            GameEnum::Sekiro(sekiro) => sekiro.get_buffered_flags(),
-            GameEnum::EldenRing(elden_ring) => elden_ring.get_buffered_flags(),
+            GameEnum::DarkSoulsRemastered(remastered)    => remastered.get_buffered_flags(),
+            GameEnum::DarkSouls3(ds3)                    => ds3.get_buffered_flags(),
+            GameEnum::Sekiro(sekiro)                     => sekiro.get_buffered_flags(),
+            GameEnum::EldenRing(elden_ring)              => elden_ring.get_buffered_flags(),
         }
     }
 
@@ -138,10 +138,10 @@ impl EventFlagLogger for GameEnum {
         match self
         {
             GameEnum::DarkSoulsPrepareToDieEdition(ptde) => ptde.get_event_flag_state(event_flag),
-            GameEnum::DarkSoulsRemastered(remastered) => remastered.get_event_flag_state(event_flag),
-            GameEnum::DarkSouls3(ds3) => ds3.get_event_flag_state(event_flag),
-            GameEnum::Sekiro(sekiro) => sekiro.get_event_flag_state(event_flag),
-            GameEnum::EldenRing(elden_ring) => elden_ring.get_event_flag_state(event_flag),
+            GameEnum::DarkSoulsRemastered(remastered)    => remastered.get_event_flag_state(event_flag),
+            GameEnum::DarkSouls3(ds3)                    => ds3.get_event_flag_state(event_flag),
+            GameEnum::Sekiro(sekiro)                     => sekiro.get_event_flag_state(event_flag),
+            GameEnum::EldenRing(elden_ring)              => elden_ring.get_event_flag_state(event_flag),
         }
     }
 }
@@ -151,22 +151,22 @@ impl BasicPlayerPosition for GameEnum
     fn get_position(&self) -> Vector3f {
         match self
         {
-            GameEnum::DarkSoulsPrepareToDieEdition(_) => panic!("BasicPlayerPosition not available in PTDE"),
-            GameEnum::DarkSoulsRemastered(_) => panic!("BasicPlayerPosition not available in remastered"),
-            GameEnum::DarkSouls3(_) => panic!("BasicPlayerPosition not available in ds3"),
-            GameEnum::Sekiro(sekiro) => sekiro.get_position(),
-            GameEnum::EldenRing(_) => panic!("BasicPlayerPosition not available in elden ring"),
+            GameEnum::DarkSoulsPrepareToDieEdition(_)    => panic!("BasicPlayerPosition not available in PTDE"),
+            GameEnum::DarkSoulsRemastered(_)             => panic!("BasicPlayerPosition not available in remastered"),
+            GameEnum::DarkSouls3(_)                      => panic!("BasicPlayerPosition not available in ds3"),
+            GameEnum::Sekiro(sekiro)                     => sekiro.get_position(),
+            GameEnum::EldenRing(_)                       => panic!("BasicPlayerPosition not available in elden ring"),
         }
     }
 
     fn set_position(&self, position: &Vector3f) {
         match self
         {
-            GameEnum::DarkSoulsPrepareToDieEdition(_) => panic!("BasicPlayerPosition not available in PTDE"),
-            GameEnum::DarkSoulsRemastered(_) => panic!("BasicPlayerPosition not available in remastered"),
-            GameEnum::DarkSouls3(_) => panic!("BasicPlayerPosition not available in ds3"),
-            GameEnum::Sekiro(sekiro) => sekiro.set_position(position),
-            GameEnum::EldenRing(_) => panic!("BasicPlayerPosition not available in elden ring"),
+            GameEnum::DarkSoulsPrepareToDieEdition(_)    => panic!("BasicPlayerPosition not available in PTDE"),
+            GameEnum::DarkSoulsRemastered(_)             => panic!("BasicPlayerPosition not available in remastered"),
+            GameEnum::DarkSouls3(_)                      => panic!("BasicPlayerPosition not available in ds3"),
+            GameEnum::Sekiro(sekiro)                     => sekiro.set_position(position),
+            GameEnum::EldenRing(_)                       => panic!("BasicPlayerPosition not available in elden ring"),
         }
     }
 }

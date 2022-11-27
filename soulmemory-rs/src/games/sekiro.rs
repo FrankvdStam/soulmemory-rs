@@ -25,6 +25,7 @@ use crate::gui::event_flag_widget::EventFlagWidget;
 use crate::gui::chr_dbg_flags_widget::ChrDbgFlagsWidget;
 use crate::gui::widget::Widget;
 use crate::util::vector3f::Vector3f;
+use crate::gui::misc_widget::MiscWidget;
 
 static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, u8, u8); }
 
@@ -60,6 +61,8 @@ pub struct Sekiro
     position: Pointer,
     chr_dbg_flags: Pointer,
     fn_get_event_flag: FnGetEventFlag,
+
+    menu_man: Pointer,
 }
 
 impl Sekiro
@@ -74,46 +77,16 @@ impl Sekiro
             position: Pointer::default(),
             chr_dbg_flags: Pointer::default(),
             fn_get_event_flag: |_,_|{0},
+
+            menu_man: Pointer::default(),
         }
     }
 
 
-    //pub fn get_chr_dbg_flags(&self) -> HashMap<SekiroChrDbgFlag, bool>
-    //{
-    //    if self.process.is_attached()
-    //    {
-    //        let mut buffer = [0u8; 17];
-    //        self.chr_dbg_flags.read_memory_rel(None, &mut buffer);
-//
-    //        let mut result = HashMap::new();
-    //        result.insert(SekiroChrDbgFlag::PlayerNoDead               , buffer[SekiroChrDbgFlag::PlayerNoDead                   as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::PlayerExterminate          , buffer[SekiroChrDbgFlag::PlayerExterminate              as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::PlayerExterminateStamina   , buffer[SekiroChrDbgFlag::PlayerExterminateStamina       as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::PlayerNoGoodsConsume       , buffer[SekiroChrDbgFlag::PlayerNoGoodsConsume           as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::PlayerNoResourceItemConsume, buffer[SekiroChrDbgFlag::PlayerNoResourceItemConsume    as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::PlayerNoRevivalConsume     , buffer[SekiroChrDbgFlag::PlayerNoRevivalConsume         as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::PlayerHide                 , buffer[SekiroChrDbgFlag::PlayerHide                     as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::PlayerSilenced             , buffer[SekiroChrDbgFlag::PlayerSilenced                 as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::AllNoDead                  , buffer[SekiroChrDbgFlag::AllNoDead                      as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::AllNoDamage                , buffer[SekiroChrDbgFlag::AllNoDamage                    as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::AllNoHit                   , buffer[SekiroChrDbgFlag::AllNoHit                       as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::AllNoAttack                , buffer[SekiroChrDbgFlag::AllNoAttack                    as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::AllNoMove                  , buffer[SekiroChrDbgFlag::AllNoMove                      as usize] == 1);
-    //        result.insert(SekiroChrDbgFlag::AllNoUpdateAi              , buffer[SekiroChrDbgFlag::AllNoUpdateAi                  as usize] == 1);
-    //        return result;
-//
-    //    }
-    //    HashMap::new()
-    //}
-//
-    //pub fn set_chr_dbg_flag(&self, flag: SekiroChrDbgFlag, value: bool)
-    //{
-    //    if self.process.is_attached()
-    //    {
-    //        let value = match value{ true => 1, false => 0};
-    //        self.chr_dbg_flags.write_u8_rel(Some(flag as usize), value);
-    //    }
-    //}
+    pub fn request_quitout(&self)
+    {
+        self.menu_man.write_u32_rel(Some(0x23c), 1);
+    }
 }
 
 impl GetSetChrDbgFlags for Sekiro
@@ -201,6 +174,7 @@ impl Game for Sekiro
                 self.event_flag_man = self.process.scan_rel("SprjEventFlagMan", "48 8b 0d ? ? ? ? 48 89 5c 24 50 48 89 6c 24 58 48 89 74 24 60", 3, 7, vec![0])?;
                 self.position = self.process.scan_rel("WorldChrManImp", "48 8B 35 ? ? ? ? 44 0F 28 18", 3, 7, vec![0, 0x48, 0x28])?;
                 self.chr_dbg_flags = self.process.scan_rel("chr dbg", "80 3d ? ? ? ? 00 0f ? ? ? ? ? 48 8b 9b d0 11 00 00", 2, 7, Vec::new())?;
+                self.menu_man = self.process.scan_rel("MenuMan", "48 8b 05 ? ? ? ? 0f b6 d1 48 8b 88 08 33 00 00", 3, 7, vec![0])?;
 
                 let set_event_flag_address = self.process.scan_abs("set_event_flag", "40 55 41 54 41 55 41 56 48 83 ec 58 80 b9 28 02 00 00 00 45 0f b6 e1 45 0f b6 e8 44 8b f2 48 8b e9", 0, Vec::new())?.get_base_address();
                 let get_event_flag_address = self.process.scan_abs("get_event_flag", "40 53 48 83 ec 20 80 b9 28 02 00 00 00 8b da", 0, Vec::new())?.get_base_address();
@@ -217,6 +191,7 @@ impl Game for Sekiro
                 info!("event_flag_man base address: 0x{:x}", self.event_flag_man.get_base_address());
                 info!("WorldChrManImp base address: 0x{:x}", self.position.get_base_address());
                 info!("chr dbg flags  base address: 0x{:x}", self.chr_dbg_flags.get_base_address());
+                info!("MenuMan        base address: 0x{:x}", self.menu_man.get_base_address());
                 info!("set event flag address     : 0x{:x}", set_event_flag_address);
                 info!("get event flag address     : 0x{:x}", get_event_flag_address);
             }
@@ -233,6 +208,6 @@ impl Game for Sekiro
     }
 
     fn get_widgets(&self) -> Vec<Box<dyn Widget>> {
-        vec![Box::new(EventFlagWidget::new()), Box::new(BasicPositionsWidget::new()), Box::new(ChrDbgFlagsWidget::new())]
+        vec![Box::new(EventFlagWidget::new()), Box::new(BasicPositionsWidget::new()), Box::new(ChrDbgFlagsWidget::new()), Box::new(MiscWidget::new())]
     }
 }

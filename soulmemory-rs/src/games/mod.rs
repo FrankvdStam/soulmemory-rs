@@ -15,6 +15,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use chrono::{DateTime, Local};
+use crate::games::armored_core_6::ArmoredCore6;
 use crate::games::dark_souls_3::DarkSouls3;
 use crate::games::elden_ring::EldenRing;
 use crate::games::prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
@@ -28,6 +29,7 @@ pub mod prepare_to_die_edition;
 pub mod dark_souls_3;
 pub mod sekiro;
 pub mod elden_ring;
+pub mod armored_core_6;
 
 #[allow(dead_code)]
 pub enum DxVersion
@@ -72,6 +74,7 @@ pub enum GameEnum
     DarkSouls3(DarkSouls3),
     Sekiro(Sekiro),
     EldenRing(EldenRing),
+    ArmoredCore6(ArmoredCore6),
 }
 
 //impl GameEnum
@@ -96,6 +99,7 @@ impl Game for GameEnum
             GameEnum::DarkSouls3(ds3)                    => ds3.refresh(),
             GameEnum::Sekiro(sekiro)                     => sekiro.refresh(),
             GameEnum::EldenRing(elden_ring)              => elden_ring.refresh(),
+            GameEnum::ArmoredCore6(armored_core_6)       => armored_core_6.refresh(),
         }
     }
 
@@ -107,6 +111,7 @@ impl Game for GameEnum
             GameEnum::DarkSouls3(ds3)                    => ds3.get_dx_version(),
             GameEnum::Sekiro(sekiro)                     => sekiro.get_dx_version(),
             GameEnum::EldenRing(elden_ring)              => elden_ring.get_dx_version(),
+            GameEnum::ArmoredCore6(armored_core_6)       => armored_core_6.get_dx_version(),
         }
     }
 
@@ -118,6 +123,7 @@ impl Game for GameEnum
             GameEnum::DarkSouls3(ds3)                    => ds3.get_widgets(),
             GameEnum::Sekiro(sekiro)                     => sekiro.get_widgets(),
             GameEnum::EldenRing(elden_ring)              => elden_ring.get_widgets(),
+            GameEnum::ArmoredCore6(armored_core_6)       => armored_core_6.get_widgets(),
         }
     }
 }
@@ -131,6 +137,7 @@ impl EventFlagLogger for GameEnum {
             GameEnum::DarkSouls3(ds3)                    => ds3.get_buffered_flags(),
             GameEnum::Sekiro(sekiro)                     => sekiro.get_buffered_flags(),
             GameEnum::EldenRing(elden_ring)              => elden_ring.get_buffered_flags(),
+            GameEnum::ArmoredCore6(armored_core_6)       => armored_core_6.get_buffered_flags(),
         }
     }
 
@@ -142,6 +149,7 @@ impl EventFlagLogger for GameEnum {
             GameEnum::DarkSouls3(ds3)                    => ds3.get_event_flag_state(event_flag),
             GameEnum::Sekiro(sekiro)                     => sekiro.get_event_flag_state(event_flag),
             GameEnum::EldenRing(elden_ring)              => elden_ring.get_event_flag_state(event_flag),
+            GameEnum::ArmoredCore6(armored_core_6)       => armored_core_6.get_event_flag_state(event_flag),
         }
     }
 }
@@ -156,6 +164,7 @@ impl BasicPlayerPosition for GameEnum
             GameEnum::DarkSouls3(_)                      => panic!("BasicPlayerPosition not available in ds3"),
             GameEnum::Sekiro(sekiro)                     => sekiro.get_position(),
             GameEnum::EldenRing(_)                       => panic!("BasicPlayerPosition not available in elden ring"),
+            GameEnum::ArmoredCore6(_)                    => panic!("BasicPlayerPosition not available in elden ring"),
         }
     }
 
@@ -167,6 +176,7 @@ impl BasicPlayerPosition for GameEnum
             GameEnum::DarkSouls3(_)                      => panic!("BasicPlayerPosition not available in ds3"),
             GameEnum::Sekiro(sekiro)                     => sekiro.set_position(position),
             GameEnum::EldenRing(_)                       => panic!("BasicPlayerPosition not available in elden ring"),
+            GameEnum::ArmoredCore6(_)                    => panic!("BasicPlayerPosition not available in elden ring"),
         }
     }
 }

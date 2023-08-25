@@ -32,6 +32,7 @@ fn main()
         String::from("darksoulsiii.exe"),
         String::from("sekiro.exe"),
         String::from("eldenring.exe"),
+        String::from("armoredcore6.exe"),
     };
 
     let mut exe_path = std::env::current_exe().unwrap();
@@ -48,7 +49,8 @@ fn main()
                 "darksoulsremastered.exe" |
                 "darksoulsiii.exe" |
                 "sekiro.exe" |
-                "eldenring.exe" =>
+                "eldenring.exe" |
+                "armoredcore6.exe" =>
                 {
                     let mut p = Process::new(process.to_lowercase().as_str());
                     p.refresh().unwrap();

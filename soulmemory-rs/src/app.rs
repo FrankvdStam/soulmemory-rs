@@ -22,6 +22,7 @@ use crate::games::{Game, GameEnum};
 use crate::games::dark_souls_3::DarkSouls3;
 use crate::games::sekiro::Sekiro;
 use crate::games::elden_ring::EldenRing;
+use crate::games::armored_core_6::ArmoredCore6;
 use crate::games::prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
 use crate::games::remastered::DarkSoulsRemastered;
 use crate::gui::widget::Widget;
@@ -72,6 +73,7 @@ impl App
             "darksoulsiii.exe"          => GameEnum::DarkSouls3(DarkSouls3::new()),
             "sekiro.exe"                => GameEnum::Sekiro(Sekiro::new()),
             "eldenring.exe"             => GameEnum::EldenRing(EldenRing::new()),
+            "armoredcore6.exe"          => GameEnum::ArmoredCore6(ArmoredCore6::new()),
             _                           => panic!("unsupported process: {}", process_name.to_lowercase()),
         };
 

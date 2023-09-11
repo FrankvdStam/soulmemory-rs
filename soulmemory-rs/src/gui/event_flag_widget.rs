@@ -16,6 +16,7 @@
 
 use hudhook::hooks::ImguiRenderLoopFlags;
 use imgui::{ChildWindow, TreeNodeFlags, Ui};
+use log::info;
 use crate::games::{EventFlag, EventFlagLogger, GameEnum};
 use crate::gui::widget::Widget;
 
@@ -188,6 +189,7 @@ impl Widget for EventFlagWidget
                 0 => //let everything through
                 {
                     self.event_flags.push((f, format!("{} - {: >10} - {}", f.0.format("%Y-%m-%d %H:%M:%S%.3f"), f.1, f.2)));
+                    info!("{} - {: >10} - {}", f.0.format("%Y-%m-%d %H:%M:%S%.3f"), f.1, f.2);
                 }
 
                 //Unique flags
@@ -197,6 +199,7 @@ impl Widget for EventFlagWidget
                     {
                         self.unique_event_flags.push(f);
                         self.event_flags.push((f, format!("{} - {: >10} - {}", f.0.format("%Y-%m-%d %H:%M:%S%.3f"), f.1, f.2)));
+                        info!("{} - {: >10} - {}", f.0.format("%Y-%m-%d %H:%M:%S%.3f"), f.1, f.2);
                     }
                 }
 
@@ -206,6 +209,7 @@ impl Widget for EventFlagWidget
                     if self.excluded_flags.iter().find(|p| **p == f.1).is_none()
                     {
                         self.event_flags.push((f, format!("{} - {: >10} - {}", f.0.format("%Y-%m-%d %H:%M:%S%.3f"), f.1, f.2)));
+                        info!("{} - {: >10} - {}", f.0.format("%Y-%m-%d %H:%M:%S%.3f"), f.1, f.2);
                     }
                 }
                 _ => {}

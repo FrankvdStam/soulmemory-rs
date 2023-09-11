@@ -88,7 +88,7 @@ impl Game for DarkSoulsPrepareToDieEdition
                         let event_flag_id   = get_stack_u32((*reg).esp, 0x4);
 
                         let mut guard = ptde.event_flags.lock().unwrap();
-                        guard.push((chrono::offset::Local::now(), event_flag_id, value != 0));
+                        guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value != 0));
                     }
                 }
 

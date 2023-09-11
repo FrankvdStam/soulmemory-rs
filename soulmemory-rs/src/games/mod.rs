@@ -15,6 +15,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use chrono::{DateTime, Local};
+use serde::{Deserialize, Serialize};
 use crate::games::armored_core_6::ArmoredCore6;
 use crate::games::dark_souls_3::DarkSouls3;
 use crate::games::elden_ring::EldenRing;
@@ -39,7 +40,24 @@ pub enum DxVersion
     Dx12,
 }
 
-pub type EventFlag = (DateTime<Local>, u32, bool);
+#[derive(Clone, Copy, Serialize, Deserialize)]
+pub struct EventFlag
+{
+    pub time: DateTime<Local>,
+    pub flag: u32,
+    pub state: bool,
+}
+
+impl EventFlag
+{
+    pub fn new(time: DateTime<Local>, flag: u32, state: bool) -> Self
+    {
+        EventFlag{time, flag, state}
+    }
+}
+
+
+//pub type EventFlag = (DateTime<Local>, u32, bool);
 pub type ChrDbgFlag = (u32, String, bool);
 
 pub trait EventFlagLogger

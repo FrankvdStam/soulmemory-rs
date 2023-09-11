@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+use std::{thread, time};
 use mem_rs::prelude::Process;
+
 
 #[cfg(target_pointer_width = "64")]
 const X64: bool = true;
@@ -80,3 +82,4 @@ fn main()
         println!("No supported process found");
     }
 }
+

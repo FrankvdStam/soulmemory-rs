@@ -22,6 +22,7 @@ mod app;
 mod games;
 mod gui;
 mod tas;
+pub mod server;
 
 use std::time::Duration;
 use std::ffi::c_void;

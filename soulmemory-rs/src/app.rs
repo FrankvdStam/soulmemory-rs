@@ -27,11 +27,15 @@ use crate::games::prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
 use crate::games::remastered::DarkSoulsRemastered;
 use crate::gui::widget::Widget;
 use crate::util::server::Server;
+use crate::server::webserver;
+use crate::server::webserver::Webserver;
 
 pub struct App
 {
     pub game: GameEnum,
     pub hmodule: HINSTANCE,
+    pub webserver: Webserver,
+
     #[allow(dead_code)]
     server: Server,
     widgets: Vec<Box<dyn Widget>>,
@@ -84,6 +88,7 @@ impl App
         {
             game,
             hmodule,
+            webserver: Webserver::new(),
             server: Server::new(String::from("127.0.0.1:54345")),
             widgets
         }
@@ -120,6 +125,7 @@ impl Default for App
         {
             game: GameEnum::DarkSoulsRemastered(DarkSoulsRemastered::new()),
             hmodule: HINSTANCE(0),
+            webserver: Webserver::new(),
             server: Server::default(),
             widgets: Vec::new(),
         }

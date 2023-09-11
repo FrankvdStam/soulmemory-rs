@@ -187,25 +187,25 @@ impl Widget for EventFlagWidget
             {
                 0 => //let everything through
                 {
-                    self.event_flags.push((f, format!("{} - {: >10} - {}", f.0.format("%Y-%m-%d %H:%M:%S%.3f"), f.1, f.2)));
+                    self.event_flags.push((f, format!("{} - {: >10} - {}", f.time.format("%Y-%m-%d %H:%M:%S%.3f"), f.flag, f.state)));
                 }
 
                 //Unique flags
                 1 =>
                 {
-                    if self.unique_event_flags.iter().find(|p| p.1 == f.1).is_none()
+                    if self.unique_event_flags.iter().find(|p| p.flag == f.flag).is_none()
                     {
                         self.unique_event_flags.push(f);
-                        self.event_flags.push((f, format!("{} - {: >10} - {}", f.0.format("%Y-%m-%d %H:%M:%S%.3f"), f.1, f.2)));
+                        self.event_flags.push((f, format!("{} - {: >10} - {}", f.time.format("%Y-%m-%d %H:%M:%S%.3f"), f.flag, f.state)));
                     }
                 }
 
                 //Exclusion list
                 2 =>
                 {
-                    if self.excluded_flags.iter().find(|p| **p == f.1).is_none()
+                    if self.excluded_flags.iter().find(|p| **p == f.flag).is_none()
                     {
-                        self.event_flags.push((f, format!("{} - {: >10} - {}", f.0.format("%Y-%m-%d %H:%M:%S%.3f"), f.1, f.2)));
+                        self.event_flags.push((f, format!("{} - {: >10} - {}", f.time.format("%Y-%m-%d %H:%M:%S%.3f"), f.flag, f.state)));
                     }
                 }
                 _ => {}

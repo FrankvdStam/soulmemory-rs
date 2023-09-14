@@ -90,7 +90,7 @@ impl Game for ArmoredCore6
                 STATIC_DETOUR_SET_EVENT_FLAG.initialize(mem::transmute(self.set_event_flag_address), move |rdx: u64, event_flag_id: u32, value: i32|
                 {
                     let mut guard = event_flags.lock().unwrap();
-                    guard.push((chrono::offset::Local::now(), event_flag_id, value == 1));
+                    guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value == 1));
                     STATIC_DETOUR_SET_EVENT_FLAG.call(rdx, event_flag_id, value);
                 }).unwrap().enable().unwrap();
 

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+use std::fmt;
+use std::fmt::Display;
 use chrono::{DateTime, Local};
 use crate::games::armored_core_6::ArmoredCore6;
 use crate::games::dark_souls_3::DarkSouls3;
@@ -39,7 +41,27 @@ pub enum DxVersion
     Dx12,
 }
 
-pub type EventFlag = (DateTime<Local>, u32, bool);
+#[derive(Clone, Copy)]
+pub struct  EventFlag
+{
+    pub time: DateTime<Local>,
+    pub flag: u32,
+    pub state: bool,
+}
+
+impl Display for EventFlag
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} - {: >10} - {}", self.time.format("%Y-%m-%d %H:%M:%S%.3f"), self.flag, self.state)
+    }
+}
+
+impl EventFlag
+{
+    pub fn new(time: DateTime<Local>, flag: u32, state: bool,) -> Self {EventFlag { time, flag, state } }
+}
+
+
 pub type ChrDbgFlag = (u32, String, bool);
 
 pub trait EventFlagLogger

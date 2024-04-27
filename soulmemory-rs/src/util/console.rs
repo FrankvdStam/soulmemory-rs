@@ -19,10 +19,10 @@ use windows::Win32::System::Console::{AllocConsole, FreeConsole};
 
 pub fn init_console()
 {
-    unsafe{ AllocConsole() };
+    unsafe{ let _ = AllocConsole(); };
 }
 
 pub fn free_console()
 {
-    unsafe{ FreeConsole() };
+    unsafe{ let _ = FreeConsole(); };
 }

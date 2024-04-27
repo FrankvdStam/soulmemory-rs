@@ -32,7 +32,7 @@ impl RenderHooks
         let instance = App::get_instance();
         let app = instance.lock().unwrap();
 
-        hudhook::lifecycle::global_state::set_module(app.hmodule);
+        hudhook::lifecycle::global_state::set_module(hudhook::reexports::HINSTANCE(app.hmodule.0));
         let hooks: Box<dyn hooks::Hooks> = match app.game.get_dx_version()
         {
             DxVersion::Dx9  => RenderHooks::new().into_hook::<ImguiDX9Hooks>(),

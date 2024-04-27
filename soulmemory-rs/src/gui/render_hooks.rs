@@ -16,9 +16,9 @@
 
 use hudhook::hooks;
 use hudhook::hooks::{ImguiRenderLoop, ImguiRenderLoopFlags};
-use hudhook::hooks::dx11::ImguiDX11Hooks;
-use hudhook::hooks::dx12::ImguiDX12Hooks;
-use hudhook::hooks::dx9::ImguiDX9Hooks;
+use hudhook::hooks::dx11::ImguiDx11Hooks;
+use hudhook::hooks::dx12::ImguiDx12Hooks;
+use hudhook::hooks::dx9::ImguiDx9Hooks;
 use imgui::Ui;
 use crate::App;
 use crate::games::{DxVersion, Game};
@@ -35,9 +35,9 @@ impl RenderHooks
         hudhook::lifecycle::global_state::set_module(hudhook::reexports::HINSTANCE(app.hmodule.0));
         let hooks: Box<dyn hooks::Hooks> = match app.game.get_dx_version()
         {
-            DxVersion::Dx9  => RenderHooks::new().into_hook::<ImguiDX9Hooks>(),
-            DxVersion::Dx11 => RenderHooks::new().into_hook::<ImguiDX11Hooks>(),
-            DxVersion::Dx12 => RenderHooks::new().into_hook::<ImguiDX12Hooks>(),
+            DxVersion::Dx9  => RenderHooks::new().into_hook::<ImguiDx9Hooks>(),
+            DxVersion::Dx11 => RenderHooks::new().into_hook::<ImguiDx11Hooks>(),
+            DxVersion::Dx12 => RenderHooks::new().into_hook::<ImguiDx12Hooks>(),
         };
         unsafe { hooks.hook() };
         hudhook::lifecycle::global_state::set_hooks(hooks);

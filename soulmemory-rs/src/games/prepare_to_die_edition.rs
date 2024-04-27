@@ -92,7 +92,7 @@ impl Game for DarkSoulsPrepareToDieEdition
                     }
                 }
 
-                let h = Hooker::new(set_event_flag_address, HookType::JmpBack(capture_the_flag), CallbackOption::None, HookFlags::empty());
+                let h = Hooker::new(set_event_flag_address, HookType::JmpBack(capture_the_flag), CallbackOption::None, 0, HookFlags::empty());
                 self.set_event_flag_hook = Some(h.hook().unwrap());
 
                 info!("event_flag_man base address: 0x{:x}", self.event_flag_man.get_base_address());

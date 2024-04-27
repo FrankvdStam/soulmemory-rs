@@ -19,7 +19,7 @@ serde = { version = "1.0.199", features = ["derive"] }
 serde_json = "1.0.116"
 
 imgui = "0.11.0"
-hudhook = "0.4.0"
+hudhook = "0.5.0"
 
 log = "0.4.17"
 log4rs = {version = "1.1.1", features = ["all_components" ] }

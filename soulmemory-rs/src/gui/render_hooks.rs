@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use hudhook::hooks;
-use hudhook::hooks::{ImguiRenderLoop, ImguiRenderLoopFlags};
+use hudhook::HINSTANCE as HUDHOOK_HINSTANCE;
+use hudhook::Hudhook;
+use hudhook::hooks::{ImguiRenderLoop};
 use hudhook::hooks::dx11::ImguiDx11Hooks;
 use hudhook::hooks::dx12::ImguiDx12Hooks;
 use hudhook::hooks::dx9::ImguiDx9Hooks;
@@ -32,15 +33,22 @@ impl RenderHooks
         let instance = App::get_instance();
         let app = instance.lock().unwrap();
 
-        hudhook::lifecycle::global_state::set_module(hudhook::reexports::HINSTANCE(app.hmodule.0));
-        let hooks: Box<dyn hooks::Hooks> = match app.game.get_dx_version()
+        let mut builder = Hudhook::builder();
+
+        builder = match app.game.get_dx_version()
         {
-            DxVersion::Dx9  => RenderHooks::new().into_hook::<ImguiDx9Hooks>(),
-            DxVersion::Dx11 => RenderHooks::new().into_hook::<ImguiDx11Hooks>(),
-            DxVersion::Dx12 => RenderHooks::new().into_hook::<ImguiDx12Hooks>(),
+            DxVersion::Dx9  =>  builder.with(RenderHooks::new().into_hook::<ImguiDx9Hooks>()),
+            DxVersion::Dx11 =>  builder.with(RenderHooks::new().into_hook::<ImguiDx11Hooks>()),
+            DxVersion::Dx12 =>  builder.with(RenderHooks::new().into_hook::<ImguiDx12Hooks>()),
         };
-        unsafe { hooks.hook() };
-        hudhook::lifecycle::global_state::set_hooks(hooks);
+
+
+        if let Err(e) = builder.with_hmodule(HUDHOOK_HINSTANCE(app.hmodule.0))
+            .build()
+            .apply()
+        {
+            panic!("{:?}", e)
+        }
     }
 
     pub fn new() -> Self { RenderHooks {} }
@@ -48,10 +56,10 @@ impl RenderHooks
 
 impl ImguiRenderLoop for RenderHooks
 {
-    fn render(&mut self, ui: &mut Ui, flags: &ImguiRenderLoopFlags)
+    fn render(&mut self, ui: &mut Ui)
     {
         let instance = App::get_instance();
         let mut app = instance.lock().unwrap();
-        app.render(ui, flags);
+        app.render(ui);
     }
 }

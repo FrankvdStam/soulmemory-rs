@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use hudhook::hooks::ImguiRenderLoopFlags;
 use imgui::{TreeNodeFlags, Ui};
 use crate::games::{GameEnum};
 use crate::gui::widget::Widget;
@@ -35,7 +34,7 @@ impl AiToggleWidget
 
 impl Widget for AiToggleWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui, _flags: &ImguiRenderLoopFlags)
+    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
     {
         if let GameEnum::DarkSoulsRemastered(dsr) = game
         {

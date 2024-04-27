@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use hudhook::hooks::ImguiRenderLoopFlags;
 use imgui::{TreeNodeFlags, Ui};
 use crate::games::{EventFlag, EventFlagLogger, GameEnum};
 use crate::gui::widget::Widget;
@@ -177,7 +176,7 @@ impl EventFlagWidget
 
 impl Widget for EventFlagWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui, _flags: &ImguiRenderLoopFlags)
+    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
     {
         let new_flags = game.get_buffered_flags();
 

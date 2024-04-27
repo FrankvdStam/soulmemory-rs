@@ -1,7 +1,6 @@
 use crate::gui::widget::Widget;
 use crate::games::GameEnum;
 use imgui::{TreeNodeFlags, Ui};
-use hudhook::hooks::ImguiRenderLoopFlags;
 use windows::Win32::UI::Input::KeyboardAndMouse::VK_OEM_5;
 use crate::games::sekiro::Sekiro;
 
@@ -25,7 +24,7 @@ impl MiscWidget
 
 impl Widget for MiscWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui, _flags: &ImguiRenderLoopFlags)
+    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
     {
         if ui.collapsing_header("misc", TreeNodeFlags::FRAMED)
         {

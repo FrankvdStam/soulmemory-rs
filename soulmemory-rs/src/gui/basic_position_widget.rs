@@ -1,4 +1,3 @@
-use hudhook::hooks::ImguiRenderLoopFlags;
 use imgui::{TreeNodeFlags, Ui};
 use log::info;
 use crate::games::{BasicPlayerPosition, GameEnum};
@@ -28,7 +27,7 @@ impl BasicPositionsWidget
 
 impl Widget for BasicPositionsWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui, _flags: &ImguiRenderLoopFlags)
+    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
     {
         let current_position = game.get_position();
 

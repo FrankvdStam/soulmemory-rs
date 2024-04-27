@@ -15,7 +15,6 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use std::sync::{Arc, Mutex};
-use hudhook::hooks::ImguiRenderLoopFlags;
 use windows::Win32::Foundation::HINSTANCE;
 use imgui::{Condition, Ui};
 use crate::games::{Game, GameEnum};
@@ -95,13 +94,13 @@ impl App
         Ok(())
     }
 
-    pub fn render(&mut self, ui: &mut Ui, flags: &ImguiRenderLoopFlags)
+    pub fn render(&mut self, ui: &mut Ui)
     {
         ui.window("soulmemory-rs").size([350.0, 800.0], Condition::FirstUseEver).build(||
         {
             for w in &mut self.widgets
             {
-                w.render(&mut self.game, ui, flags);
+                w.render(&mut self.game, ui);
             }
         });
         //ui.show_demo_window(&mut true);

@@ -14,11 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use hudhook::hooks::ImguiRenderLoopFlags;
 use imgui::Ui;
 use crate::games::{GameEnum};
 
 pub trait Widget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui, flags: &ImguiRenderLoopFlags);
+    fn render(&mut self, game: &mut GameEnum, ui: &Ui);
 }

@@ -45,7 +45,7 @@ impl Widget for AiToggleWidget
                 ui.same_line();
                 ui.text(format!("{}", dsr.get_ai_timer_value()));
 
-                ui.push_item_width(100.0f32);
+                let _a = ui.push_item_width(100.0f32);
                 ui.input_float("auto toggle timing", &mut dsr.ai_timer_toggle_threshold).build();
 
                 ui.text("Auto toggle mode:");

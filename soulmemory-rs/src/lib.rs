@@ -15,7 +15,6 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #![feature(fs_try_exists)]
-#![feature(abi_thiscall)]
 
 mod util;
 mod app;

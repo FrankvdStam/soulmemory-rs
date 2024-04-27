@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-detour = "0.8.1"
+retour = { version = "0.3.0", features = ["static-detour"] }
 ilhook = "2.1.0"
 
 mem-rs = "0.1.4"
@@ -18,8 +18,8 @@ lazy_static = "1.4.0"
 serde = { version = "1.0.199", features = ["derive"] }
 serde_json = "1.0.116"
 
-imgui = "0.8.0"
-hudhook = "0.3.0"
+imgui = "0.11.0"
+hudhook = "0.4.0"
 
 log = "0.4.17"
 log4rs = {version = "1.1.1", features = ["all_components" ] }

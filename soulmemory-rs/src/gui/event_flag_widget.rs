@@ -15,7 +15,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use hudhook::hooks::ImguiRenderLoopFlags;
-use imgui::{ChildWindow, TreeNodeFlags, Ui};
+use imgui::{TreeNodeFlags, Ui};
 use crate::games::{EventFlag, EventFlagLogger, GameEnum};
 use crate::gui::widget::Widget;
 
@@ -61,9 +61,9 @@ impl EventFlagWidget
                 self.event_flags.clear();
             }
 
-            ChildWindow::new("log_event_flags_scrollable")
+            ui.child_window("log_event_flags_scrollable")
                 .size([ui.content_region_avail()[0], EVENT_FLAG_SCROLL_REGION_HEIGHT])
-                .build(ui, ||
+                .build(||
             {
                 for f in self.event_flags.iter()
                 {
@@ -80,9 +80,9 @@ impl EventFlagWidget
         {
             Self::flag_input_to_vec(ui, &mut self.exclusion_flag_input, &mut self.excluded_flags);
 
-            ChildWindow::new("exclusions_event_flags_scrollable")
+            ui.child_window("exclusions_event_flags_scrollable")
                 .size([ui.content_region_avail()[0], EVENT_FLAG_SCROLL_REGION_HEIGHT])
-                .build(ui, ||
+                .build(||
             {
                 //Draw excluded flags with delete option
                 let mut delete_flag_index = None;
@@ -91,7 +91,7 @@ impl EventFlagWidget
                     ui.text(format!("{: >10}", self.excluded_flags[i].to_string()));
                     ui.same_line();
 
-                    let id = ui.push_id(i as i32);
+                    let id = ui.push_id(i.to_string());
                     if ui.button("delete")
                     {
                         delete_flag_index = Some(i);
@@ -116,9 +116,9 @@ impl EventFlagWidget
         {
             Self::flag_input_to_vec(ui, &mut self.watch_flag_input, &mut self.watched_flags);
 
-            ChildWindow::new("watch_event_flags_scrollable")
+            ui.child_window("watch_event_flags_scrollable")
                 .size([ui.content_region_avail()[0], EVENT_FLAG_SCROLL_REGION_HEIGHT])
-                .build(ui, ||
+                .build(||
             {
                 let mut delete_flag_index = None;
                 for i in 0..self.watched_flags.len()
@@ -130,7 +130,7 @@ impl EventFlagWidget
                     ui.text(format!("{: >5}", flag_val));
                     ui.same_line();
 
-                    let id = ui.push_id(i as i32);
+                    let id = ui.push_id(i.to_string());
                     if ui.button("delete")
                     {
                         delete_flag_index = Some(i);

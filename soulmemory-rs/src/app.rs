@@ -17,7 +17,7 @@
 use std::sync::{Arc, Mutex};
 use hudhook::hooks::ImguiRenderLoopFlags;
 use windows::Win32::Foundation::HINSTANCE;
-use imgui::{Condition, Ui, Window};
+use imgui::{Condition, Ui};
 use crate::games::{Game, GameEnum};
 use crate::games::dark_souls_3::DarkSouls3;
 use crate::games::sekiro::Sekiro;
@@ -97,14 +97,13 @@ impl App
 
     pub fn render(&mut self, ui: &mut Ui, flags: &ImguiRenderLoopFlags)
     {
-        Window::new("soulmemory-rs").size([350.0, 800.0], Condition::FirstUseEver).build(ui, ||
+        ui.window("soulmemory-rs").size([350.0, 800.0], Condition::FirstUseEver).build(||
         {
             for w in &mut self.widgets
             {
                 w.render(&mut self.game, ui, flags);
             }
         });
-
         //ui.show_demo_window(&mut true);
     }
 }

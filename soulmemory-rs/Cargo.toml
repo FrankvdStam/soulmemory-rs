@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 detour = "0.8.1"
 ilhook = "1.3"
 
-mem-rs = "0.1.3"
+mem-rs = "0.1.4"
 #mem-rs = { path="C:/projects/mem-rs" }
 chrono = "0.4.19"
 lazy_static = "1.4.0"

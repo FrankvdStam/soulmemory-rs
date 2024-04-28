@@ -1,4 +1,4 @@
-cargo build -Zmultitarget --target x86_64-pc-windows-msvc --target=i686-pc-windows-msvc --release
+cargo build --target x86_64-pc-windows-msvc --target=i686-pc-windows-msvc --release
 
 @RD /S /Q build
 mkdir "build"

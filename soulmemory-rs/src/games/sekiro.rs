@@ -16,7 +16,7 @@
 
 use std::mem;
 use std::sync::{Arc, Mutex};
-use detour::static_detour;
+use retour::static_detour;
 use log::info;
 use mem_rs::prelude::*;
 use crate::games::{BasicPlayerPosition, ChrDbgFlag, DxVersion, EventFlag, EventFlagLogger, Game, GetSetChrDbgFlags};

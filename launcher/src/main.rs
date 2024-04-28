@@ -54,7 +54,7 @@ fn main()
                 {
                     let mut p = Process::new(process.to_lowercase().as_str());
                     p.refresh().unwrap();
-                    p.inject_dll(dll_path.as_str());
+                    p.inject_dll(dll_path.as_str()).unwrap();
                 }
 
                 "darksoulsii.exe" => todo!(), //check if 64 bit
@@ -69,7 +69,7 @@ fn main()
                 {
                     let mut p = Process::new(process.to_lowercase().as_str());
                     p.refresh().unwrap();
-                    p.inject_dll(dll_path.as_str());
+                    p.inject_dll(dll_path.as_str()).unwrap();
                 },
                 _ => println!("unsupported process"),
             }

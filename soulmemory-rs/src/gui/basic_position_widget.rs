@@ -1,5 +1,4 @@
-use hudhook::hooks::ImguiRenderLoopFlags;
-use imgui::{ChildWindow, TreeNodeFlags, Ui};
+use imgui::{TreeNodeFlags, Ui};
 use log::info;
 use crate::games::{BasicPlayerPosition, GameEnum};
 use crate::gui::widget::Widget;
@@ -28,7 +27,7 @@ impl BasicPositionsWidget
 
 impl Widget for BasicPositionsWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui, _flags: &ImguiRenderLoopFlags)
+    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
     {
         let current_position = game.get_position();
 
@@ -58,19 +57,19 @@ impl Widget for BasicPositionsWidget
             }
 
             ui.input_text("description: ", &mut self.position_input_text).build();
-            ui.push_item_width(100f32);
+            let _a = ui.push_item_width(100f32);
             ui.input_float("x", &mut self.position_input_vec.x).build();
             ui.same_line();
-            ui.push_item_width(100f32);
+            let _b =  ui.push_item_width(100f32);
             ui.input_float("y", &mut self.position_input_vec.y).build();
             ui.same_line();
-            ui.push_item_width(100f32);
+            let _c = ui.push_item_width(100f32);
             ui.input_float("z", &mut self.position_input_vec.z).build();
 
             //Display list of positions
-            ChildWindow::new("positions_scrollable")
+            ui.child_window("positions_scrollable")
                 .size([ui.content_region_avail()[0], 400.0f32])
-                .build(ui, ||
+                .build(||
             {
                 let mut delete_index = None;
                 for i in 0..self.positions.len()

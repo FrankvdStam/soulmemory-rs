@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use hudhook::hooks::ImguiRenderLoopFlags;
 use imgui::{TreeNodeFlags, Ui};
 use crate::games::{GameEnum};
 use crate::gui::widget::Widget;
@@ -35,7 +34,7 @@ impl AiToggleWidget
 
 impl Widget for AiToggleWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui, _flags: &ImguiRenderLoopFlags)
+    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
     {
         if let GameEnum::DarkSoulsRemastered(dsr) = game
         {
@@ -45,7 +44,7 @@ impl Widget for AiToggleWidget
                 ui.same_line();
                 ui.text(format!("{}", dsr.get_ai_timer_value()));
 
-                ui.push_item_width(100.0f32);
+                let _a = ui.push_item_width(100.0f32);
                 ui.input_float("auto toggle timing", &mut dsr.ai_timer_toggle_threshold).build();
 
                 ui.text("Auto toggle mode:");

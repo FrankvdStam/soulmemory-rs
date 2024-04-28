@@ -39,12 +39,12 @@ pub fn tas_ai_toggle(toggle_mode: ToggleMode, timer_value: f32, timer_threshold:
     {
         if toggle_mode == ToggleMode::Right
         {
-            unsafe{ (*xinput_state).Gamepad.wButtons |= 0x0008; }//d-pad right
+            unsafe{ (*xinput_state).Gamepad.wButtons.0 |= 0x0008; }//d-pad right
         }
 
         if toggle_mode == ToggleMode::Left
         {
-            unsafe{ (*xinput_state).Gamepad.wButtons |= 0x0004; }//d-pad left
+            unsafe{ (*xinput_state).Gamepad.wButtons.0 |= 0x0004; }//d-pad left
         }
     }
 }

@@ -22,7 +22,7 @@ use log4rs::append::file::FileAppender;
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::config::{Appender, Config, Logger, Root};
 
-pub fn init_log()
+pub fn init_log(level: LevelFilter)
 {
     let logfile_path = r#"C:/temp/soulmemory.log"#;
 
@@ -52,12 +52,12 @@ pub fn init_log()
         .appender(Appender::builder().build("stdout", Box::new(stdout)))
         .appender(Appender::builder().build("log_file", Box::new(requests)))
         .logger(Logger::builder()
-            .build("soulmemory-rs", LevelFilter::Info))
+            .build("soulmemory-rs", level))
         .logger(Logger::builder()
             .appender("log_file")
             .additive(false)
-            .build("soulmemory-rs::log_file", LevelFilter::Info))
-        .build(Root::builder().appender("stdout").appender("log_file").build(LevelFilter::Info))
+            .build("soulmemory-rs::log_file", level))
+        .build(Root::builder().appender("stdout").appender("log_file").build(level))
         .unwrap();
 
     let _handle = init_config(config).unwrap();

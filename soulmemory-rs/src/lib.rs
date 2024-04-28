@@ -15,7 +15,6 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #![feature(fs_try_exists)]
-#![feature(abi_thiscall)]
 
 mod util;
 mod app;
@@ -26,7 +25,7 @@ mod tas;
 use std::time::Duration;
 use std::ffi::c_void;
 use std::{panic, thread};
-use log::{error, info};
+use log::{error, info, LevelFilter};
 use mem_rs::prelude::*;
 use windows::Win32::Foundation::{BOOL, HINSTANCE};
 use windows::Win32::System::SystemServices::{DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH};
@@ -62,7 +61,7 @@ pub unsafe extern "system" fn DllMain(
 fn dispatched_dll_main()
 {
     util::console::init_console();
-    util::log::init_log();
+    util::log::init_log(LevelFilter::Info);
 
     //Redirect panics
     panic::set_hook(Box::new(|i| {

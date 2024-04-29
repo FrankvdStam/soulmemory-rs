@@ -17,10 +17,13 @@
 #![feature(fs_try_exists)]
 
 mod util;
-mod app;
+pub mod app;
+pub use app::App;
 mod games;
-mod gui;
+
+mod widgets;
 mod tas;
+mod render_hooks;
 
 use std::time::Duration;
 use std::ffi::c_void;
@@ -29,8 +32,7 @@ use log::{error, info, LevelFilter};
 use mem_rs::prelude::*;
 use windows::Win32::Foundation::{BOOL, HINSTANCE};
 use windows::Win32::System::SystemServices::{DLL_PROCESS_ATTACH, DLL_PROCESS_DETACH};
-use crate::app::App;
-use crate::gui::render_hooks::RenderHooks;
+use crate::render_hooks::RenderHooks;
 
 static mut HMODULE: HINSTANCE = HINSTANCE(0);
 

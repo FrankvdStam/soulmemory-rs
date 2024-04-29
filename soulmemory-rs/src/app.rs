@@ -17,19 +17,21 @@
 use std::sync::{Arc, Mutex};
 use windows::Win32::Foundation::HINSTANCE;
 use imgui::{Condition, Ui};
-use crate::games::{Game, GameEnum};
 use crate::games::dark_souls_3::DarkSouls3;
 use crate::games::sekiro::Sekiro;
 use crate::games::elden_ring::EldenRing;
 use crate::games::armored_core_6::ArmoredCore6;
-use crate::games::prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
-use crate::games::remastered::DarkSoulsRemastered;
-use crate::gui::widget::Widget;
+use crate::games::dark_souls_prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
+use crate::games::dark_souls_remastered::DarkSoulsRemastered;
+use crate::games::mock_game::MockGame;
+use crate::games::traits::game::Game;
+use crate::widgets::widget::Widget;
 use crate::util::server::Server;
+use crate::widgets::event_flag_widget::EventFlagWidget;
 
 pub struct App
 {
-    pub game: GameEnum,
+    pub game: Box<dyn Game>,
     pub hmodule: HINSTANCE,
     #[allow(dead_code)]
     server: Server,
@@ -65,26 +67,27 @@ impl App
     pub fn new(process_name: &String, hmodule: HINSTANCE) -> Self
     {
         //Init the game we're injected in
-        let game: GameEnum = match process_name.to_lowercase().as_str()
+        let game: Box<dyn Game> = match process_name.to_lowercase().as_str()
         {
-            "darksouls.exe"             => GameEnum::DarkSoulsPrepareToDieEdition(DarkSoulsPrepareToDieEdition::new()),
-            "darksoulsremastered.exe"   => GameEnum::DarkSoulsRemastered(DarkSoulsRemastered::new()),
-            "darksoulsiii.exe"          => GameEnum::DarkSouls3(DarkSouls3::new()),
-            "sekiro.exe"                => GameEnum::Sekiro(Sekiro::new()),
-            "eldenring.exe"             => GameEnum::EldenRing(EldenRing::new()),
-            "armoredcore6.exe"          => GameEnum::ArmoredCore6(ArmoredCore6::new()),
+            "mockgame.exe"              => Box::new(MockGame::new()),
+            "darksouls.exe"             => Box::new(DarkSoulsPrepareToDieEdition::new()),
+            "darksoulsremastered.exe"   => Box::new(DarkSoulsRemastered::new()),
+            "darksoulsiii.exe"          => Box::new(DarkSouls3::new()),
+            "sekiro.exe"                => Box::new(Sekiro::new()),
+            "eldenring.exe"             => Box::new(EldenRing::new()),
+            "armoredcore6.exe"          => Box::new(ArmoredCore6::new()),
             _                           => panic!("unsupported process: {}", process_name.to_lowercase()),
         };
 
         //get drawable widgets
-        let widgets = game.get_widgets();
+        //let widgets = game.get_widgets();
 
         App
         {
             game,
             hmodule,
             server: Server::new(String::from("127.0.0.1:54345")),
-            widgets
+            widgets: vec!{Box::new(EventFlagWidget::new())}
         }
     }
 
@@ -116,7 +119,8 @@ impl Default for App
     {
         App
         {
-            game: GameEnum::DarkSoulsRemastered(DarkSoulsRemastered::new()),
+            //TODO: default mock game
+            game: Box::new(MockGame{}),
             hmodule: HINSTANCE(0),
             server: Server::default(),
             widgets: Vec::new(),

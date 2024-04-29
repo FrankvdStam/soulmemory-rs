@@ -15,18 +15,20 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use std::{mem};
+use std::any::Any;
+use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use retour::static_detour;
 use log::info;
 use mem_rs::prelude::*;
 use windows::Win32::UI::Input::XboxController::XINPUT_STATE;
 use crate::App;
-use crate::games::{DxVersion, EventFlag, EventFlagLogger, Game, GameEnum};
-use crate::gui::widget::Widget;
-use crate::gui::ai_toggle_widget::AiToggleWidget;
-use crate::gui::event_flag_widget::EventFlagWidget;
+use crate::games::dx_version::DxVersion;
+use crate::games::traits::game::Game;
+use crate::widgets::widget::Widget;
 use crate::tas::tas::{get_xinput_get_state_fn, tas_ai_toggle};
 use crate::tas::toggle_mode::ToggleMode;
+use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
 
 static_detour!{ static STATIC_DETOUR_UPDATE_IGT: unsafe extern "C" fn(f32); }
 static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, u8, u8); }
@@ -82,14 +84,12 @@ impl DarkSoulsRemastered
     }
 }
 
-impl EventFlagLogger for DarkSoulsRemastered
+impl BufferedEventFlags for DarkSoulsRemastered
 {
-    fn get_buffered_flags(&mut self) -> Vec<EventFlag>
+    fn access_flag_storage(&self) -> &Arc<Mutex<Vec<EventFlag>>>
     {
-        let mut event_flags = self.event_flags.lock().unwrap();
-        mem::replace(&mut event_flags, Vec::new())
+        return &self.event_flags;
     }
-
     fn get_event_flag_state(&self, event_flag: u32) -> bool
     {
         let event_flag_man_address = self.event_flag_man.read_u32_rel(None) as u64; //Bit memes because DSR is 64bit, compiled with 32bit wide pointers
@@ -149,9 +149,11 @@ impl Game for DarkSoulsRemastered
         DxVersion::Dx11
     }
 
-    fn get_widgets(&self) -> Vec<Box<dyn Widget>>
+    fn event_flags(&mut self) -> Option<Box<&mut dyn BufferedEventFlags>> { Some(Box::new(self)) }
+
+    fn as_any(&self) -> &dyn Any
     {
-        vec![Box::new(EventFlagWidget::new()), Box::new(AiToggleWidget::new())]
+        self
     }
 }
 
@@ -160,17 +162,13 @@ fn detour_xinput_get_state(dw_user_index: u32, xinput_state: *mut XINPUT_STATE) 
     let instance = App::get_instance();
     let app = instance.lock().unwrap();
 
-    if let GameEnum::DarkSoulsRemastered(dsr) = &app.game
+    if let Some(dsr) = app.game.as_any().downcast_ref::<DarkSoulsRemastered>()
     {
         let res = unsafe{ STATIC_DETOUR_XINPUT_GET_STATE.call(dw_user_index, xinput_state) };
-
         tas_ai_toggle(dsr.ai_timer_toggle_mode, dsr.get_ai_timer_value(), dsr.ai_timer_toggle_threshold, xinput_state);
         return res;
     }
-    else
-    {
-        panic!("remastered detour alled but game instance ")
-    }
+    panic!("Failed to resolve DSR");
 }
 
 

@@ -15,8 +15,8 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use imgui::{TreeNodeFlags, Ui};
-use crate::games::{GameEnum};
-use crate::gui::widget::Widget;
+use crate::games::traits::game::Game;
+use crate::widgets::widget::Widget;
 use crate::tas::toggle_mode::ToggleMode;
 
 pub struct AiToggleWidget
@@ -34,7 +34,7 @@ impl AiToggleWidget
 
 impl Widget for AiToggleWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
+    fn render(&mut self, game: &mut Box<dyn Game>, ui: &Ui)
     {
         if let GameEnum::DarkSoulsRemastered(dsr) = game
         {

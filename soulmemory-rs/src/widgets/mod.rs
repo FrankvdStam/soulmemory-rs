@@ -14,10 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+pub mod widget;
+pub mod event_flag_widget;
+
+/*
 pub(crate) mod render_hooks;
-pub(crate) mod event_flag_widget;
-pub(crate) mod widget;
+
 pub(crate) mod ai_toggle_widget;
 pub(crate) mod basic_position_widget;
 pub(crate) mod chr_dbg_flags_widget;
 pub(crate) mod misc_widget;
+ */

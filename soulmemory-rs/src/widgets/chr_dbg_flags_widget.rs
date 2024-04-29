@@ -15,8 +15,9 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use imgui::{TreeNodeFlags, Ui};
-use crate::games::{GameEnum, GetSetChrDbgFlags};
-use crate::gui::widget::Widget;
+use crate::games::{GetSetChrDbgFlags};
+use crate::games::traits::game::Game;
+use crate::widgets::widget::Widget;
 
 pub struct ChrDbgFlagsWidget
 {
@@ -28,10 +29,10 @@ impl ChrDbgFlagsWidget
 {
     pub fn new() -> Self{ ChrDbgFlagsWidget { flags: Vec::new(), init: false} }
 }
-
+/*
 impl Widget for ChrDbgFlagsWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
+    fn render(&mut self, game: &mut Box<dyn Game>, ui: &Ui)
     {
         if !self.init
         {
@@ -51,4 +52,4 @@ impl Widget for ChrDbgFlagsWidget
             }
         }
     }
-}
+}*/

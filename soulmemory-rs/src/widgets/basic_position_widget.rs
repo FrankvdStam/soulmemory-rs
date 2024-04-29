@@ -1,7 +1,6 @@
 use imgui::{TreeNodeFlags, Ui};
 use log::info;
-use crate::games::{BasicPlayerPosition, GameEnum};
-use crate::gui::widget::Widget;
+use crate::widgets::widget::Widget;
 use crate::util::vector3f::Vector3f;
 
 pub struct BasicPositionsWidget
@@ -24,7 +23,7 @@ impl BasicPositionsWidget
     }
 }
 
-
+/*
 impl Widget for BasicPositionsWidget
 {
     fn render(&mut self, game: &mut GameEnum, ui: &Ui)
@@ -100,4 +99,4 @@ impl Widget for BasicPositionsWidget
             });
         }
     }
-}
+}*/

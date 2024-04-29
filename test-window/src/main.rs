@@ -1,8 +1,12 @@
 use imgui::{Condition, TreeNodeFlags, Ui};
+use windows::Win32::Foundation::HINSTANCE;
+use soulmemory_rs::App;
 
 mod support;
 
 fn main() {
+    App::init(&String::from("mockgame.exe"), HINSTANCE(0));
+
     let system = support::init("test window");
     system.main_loop(move |run, ui|
     {

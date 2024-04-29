@@ -14,16 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+use std::any::Any;
 use std::mem;
 use std::sync::{Arc, Mutex};
 use log::info;
 use mem_rs::pointer::Pointer;
 use mem_rs::prelude::{Process, ReadWrite};
-use crate::games::{DxVersion, EventFlag, EventFlagLogger, Game, GameEnum};
-use crate::gui::event_flag_widget::EventFlagWidget;
-use crate::gui::widget::Widget;
+use crate::widgets::widget::Widget;
 use ilhook::x86::{Hooker, HookType, Registers, CallbackOption, HookFlags, HookPoint};
 use crate::App;
+use crate::games::dx_version::DxVersion;
+use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
+use crate::games::traits::game::Game;
 use crate::util::{get_stack_u32, get_stack_u8};
 
 pub struct DarkSoulsPrepareToDieEdition
@@ -48,12 +50,11 @@ impl DarkSoulsPrepareToDieEdition
     }
 }
 
-impl EventFlagLogger for DarkSoulsPrepareToDieEdition
+impl BufferedEventFlags for DarkSoulsPrepareToDieEdition
 {
-    fn get_buffered_flags(&mut self) -> Vec<EventFlag>
+    fn access_flag_storage(&self) -> &Arc<Mutex<Vec<EventFlag>>>
     {
-        let mut event_flags = self.event_flags.lock().unwrap();
-        mem::replace(&mut event_flags, Vec::new())
+        return &self.event_flags;
     }
 
     fn get_event_flag_state(&self, event_flag: u32) -> bool
@@ -82,7 +83,8 @@ impl Game for DarkSoulsPrepareToDieEdition
                     let instance = App::get_instance();
                     let app = instance.lock().unwrap();
 
-                    if let GameEnum::DarkSoulsPrepareToDieEdition(ptde) = &app.game
+                    let any: &dyn Any = &app.game;
+                    if let Some(ptde) = any.downcast_ref::<DarkSoulsPrepareToDieEdition>()
                     {
                         let value           = get_stack_u8((*reg).esp, 0x8);
                         let event_flag_id   = get_stack_u32((*reg).esp, 0x4);
@@ -108,9 +110,11 @@ impl Game for DarkSoulsPrepareToDieEdition
     fn get_dx_version(&self) -> DxVersion {
         DxVersion::Dx9
     }
+    fn event_flags(&mut self) -> Option<Box<&mut dyn BufferedEventFlags>> { Some(Box::new(self)) }
 
-    fn get_widgets(&self) -> Vec<Box<dyn Widget>> {
-        vec![Box::new(EventFlagWidget::new())]
+    fn as_any(&self) -> &dyn Any
+    {
+        self
     }
 }
 

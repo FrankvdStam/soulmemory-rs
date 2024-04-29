@@ -99,7 +99,10 @@ impl App
 
     pub fn render(&mut self, ui: &mut Ui)
     {
-        ui.window("soulmemory-rs").size([350.0, 800.0], Condition::FirstUseEver).build(||
+        ui.window("soulmemory-rs")
+            .position([50.0f32, 50.0f32], Condition::Appearing)
+            .size([350.0, 800.0], Condition::Appearing)
+            .build(||
         {
             for w in &mut self.widgets
             {
@@ -119,8 +122,7 @@ impl Default for App
     {
         App
         {
-            //TODO: default mock game
-            game: Box::new(MockGame{}),
+            game: Box::new(MockGame::new()),
             hmodule: HINSTANCE(0),
             server: Server::default(),
             widgets: Vec::new(),

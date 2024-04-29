@@ -28,9 +28,6 @@ pub mod armored_core_6;
 pub mod mock_game;
 pub mod dx_version;
 
-
-
-
 pub type ChrDbgFlag = (u32, String, bool);
 
 pub trait BasicPlayerPosition

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use imgui::{TreeNodeFlags, Ui};
+use imgui::{TableFlags, TreeNodeFlags, Ui};
 use crate::games::traits::buffered_event_flags::EventFlag;
 use crate::games::*;
 use crate::widgets::widget::Widget;
@@ -26,7 +26,7 @@ pub struct EventFlagWidget
     selected_log_mode_index: u32,
     unique_event_flags: Vec<EventFlag>,
 
-    event_flags: Vec<(EventFlag, String)>,
+    event_flags: Vec<EventFlag>,
 
     excluded_flags: Vec<u32>,
     exclusion_flag_input: String,
@@ -65,11 +65,39 @@ impl EventFlagWidget
                 .size([ui.content_region_avail()[0], EVENT_FLAG_SCROLL_REGION_HEIGHT])
                 .build(||
             {
-                for f in self.event_flags.iter()
+                if let Some(_table_token) = ui.begin_table_with_flags("event flags", 3, TableFlags::RESIZABLE)
                 {
-                    ui.text(&f.1);
+                    ui.table_setup_column("time");
+                    ui.table_setup_column("flag");
+                    ui.table_setup_column("value");
+                    ui.table_headers_row();
+
+                    for f in self.event_flags.iter()
+                    {
+                        ui.table_next_column();
+                        if ui.selectable_config(format!("{}", f.time.format("%H:%M:%S")))
+                            .span_all_columns(true)
+                            .build()
+                        {
+                            ui.set_clipboard_text(f.flag.to_string());
+                        }
+
+                        ui.table_next_column();
+                        ui.text(f.flag.to_string());
+
+                        ui.table_next_column();
+                        if f.state
+                        {
+                            ui.text_colored([0.0f32, 1.0f32, 0.0f32, 1.0f32], "true")
+                        }
+                        else
+                        {
+                            ui.text_colored([1.0f32, 0.0f32, 0.0f32, 1.0f32], "false")
+                        }
+                    }
                 }
             });
+
             log.end();
         }
     }
@@ -192,8 +220,7 @@ impl Widget for EventFlagWidget
                 {
                     0 => //let everything through
                     {
-                        let formatted = f.to_string();
-                        self.event_flags.push((f, formatted));
+                        self.event_flags.push(f);
                     }
 
                     //Unique flags
@@ -202,8 +229,7 @@ impl Widget for EventFlagWidget
                         if self.unique_event_flags.iter().find(|p| p.flag == f.flag).is_none()
                         {
                             self.unique_event_flags.push(f);
-                            let formatted = f.to_string();
-                            self.event_flags.push((f, formatted));
+                            self.event_flags.push(f);
                         }
                     }
 
@@ -212,7 +238,7 @@ impl Widget for EventFlagWidget
                     {
                         if self.excluded_flags.iter().find(|p| **p == f.flag).is_none()
                         {
-                            self.event_flags.push((f, f.to_string()));
+                            self.event_flags.push(f);
                         }
                     }
 

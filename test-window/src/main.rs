@@ -11,7 +11,7 @@ fn main() {
     App::init(&String::from("mockgame.exe"), HINSTANCE(0));
 
     let system = support::init("test window");
-    system.main_loop(move |_run, ui|
+    system.main_loop(move |run, ui|
     {
         let instance = App::get_instance();
         let mut app = instance.lock().unwrap();
@@ -19,8 +19,8 @@ fn main() {
         app.refresh().unwrap();
         app.render(ui);
 
-        //ui.show_demo_window(run);
         draw_controls(ui, &mut app);
+        ui.show_demo_window(run);
     });
 }
 

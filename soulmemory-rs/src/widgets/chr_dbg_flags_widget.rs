@@ -14,9 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+use std::ops::DerefMut;
 use imgui::{TreeNodeFlags, Ui};
-use crate::games::{GameEnum, GetSetChrDbgFlags};
-use crate::gui::widget::Widget;
+use crate::games::{GetSetChrDbgFlags};
+use crate::games::*;
+use crate::widgets::widget::Widget;
 
 pub struct ChrDbgFlagsWidget
 {
@@ -31,22 +33,25 @@ impl ChrDbgFlagsWidget
 
 impl Widget for ChrDbgFlagsWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
+    fn render(&mut self, game: &mut Box<dyn Game>, ui: &Ui)
     {
-        if !self.init
+        if let Some(sekiro) = GameExt::get_game_mut::<Sekiro>(game.deref_mut())
         {
-            self.flags = game.get_flags();
-            self.init = true;
-        }
-
-        if ui.collapsing_header("chr dbg", TreeNodeFlags::FRAMED)
-        {
-            for f in self.flags.iter_mut()
+            if !self.init
             {
+                self.flags = sekiro.get_flags();
+                self.init = true;
+            }
 
-                if ui.checkbox(&f.1, &mut f.2)
+            if ui.collapsing_header("chr dbg", TreeNodeFlags::FRAMED)
+            {
+                for f in self.flags.iter_mut()
                 {
-                    game.set_flag(f.0, f.2);
+
+                    if ui.checkbox(&f.1, &mut f.2)
+                    {
+                        sekiro.set_flag(f.0, f.2);
+                    }
                 }
             }
         }

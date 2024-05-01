@@ -14,14 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+use std::any::Any;
 use std::mem;
 use std::sync::{Arc, Mutex};
 use retour::static_detour;
 use log::info;
 use mem_rs::prelude::*;
-use crate::games::{DxVersion, EventFlag, EventFlagLogger, Game};
-use crate::gui::event_flag_widget::EventFlagWidget;
-use crate::gui::widget::Widget;
+use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
+use crate::games::dx_version::DxVersion;
+use crate::games::game::Game;
 
 static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, i32); }
 
@@ -53,12 +54,11 @@ impl ArmoredCore6
     }
 }
 
-impl EventFlagLogger for ArmoredCore6
+impl BufferedEventFlags for ArmoredCore6
 {
-    fn get_buffered_flags(&mut self) -> Vec<EventFlag>
+    fn access_flag_storage(&self) -> &Arc<Mutex<Vec<EventFlag>>>
     {
-        let mut event_flags = self.event_flags.lock().unwrap();
-        mem::replace(&mut event_flags, Vec::new())
+        return &self.event_flags;
     }
 
     fn get_event_flag_state(&self, event_flag: u32) -> bool {
@@ -119,8 +119,11 @@ impl Game for ArmoredCore6
     fn get_dx_version(&self) -> DxVersion {
         DxVersion::Dx12
     }
+    fn event_flags(&mut self) -> Option<Box<&mut dyn BufferedEventFlags>> { Some(Box::new(self)) }
 
-    fn get_widgets(&self) -> Vec<Box<dyn Widget>> {
-        vec![Box::new(EventFlagWidget::new())]
+    fn as_any(&self) -> &dyn Any
+    {
+        self
     }
+    fn as_any_mut(&mut self) -> &mut dyn Any { self }
 }

@@ -22,7 +22,7 @@ use hudhook::hooks::dx12::ImguiDx12Hooks;
 use hudhook::hooks::dx9::ImguiDx9Hooks;
 use imgui::Ui;
 use crate::App;
-use crate::games::{DxVersion, Game};
+use crate::games::dx_version::DxVersion;
 
 pub struct RenderHooks;
 

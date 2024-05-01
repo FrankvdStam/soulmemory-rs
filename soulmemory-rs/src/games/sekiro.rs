@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+use std::any::Any;
 use std::mem;
 use std::sync::{Arc, Mutex};
 use retour::static_detour;
 use log::info;
 use mem_rs::prelude::*;
-use crate::games::{BasicPlayerPosition, ChrDbgFlag, DxVersion, EventFlag, EventFlagLogger, Game, GetSetChrDbgFlags};
-use crate::gui::basic_position_widget::BasicPositionsWidget;
-use crate::gui::event_flag_widget::EventFlagWidget;
-use crate::gui::chr_dbg_flags_widget::ChrDbgFlagsWidget;
-use crate::gui::widget::Widget;
+use crate::games::{ChrDbgFlag, GetSetChrDbgFlags};
+use crate::games::dx_version::DxVersion;
+use crate::games::game::Game;
+use crate::games::traits::player_position::PlayerPosition;
+use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
 use crate::util::vector3f::Vector3f;
-use crate::gui::misc_widget::MiscWidget;
 
 static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, u8, u8); }
 
@@ -89,6 +89,31 @@ impl Sekiro
     }
 }
 
+impl PlayerPosition for Sekiro
+{
+    fn get_position(&self) -> Vector3f
+    {
+        if !self.process.is_attached()
+        {
+            return Vector3f::default();
+        }
+
+        let x = self.position.read_f32_rel(Some(0x80));
+        let y = self.position.read_f32_rel(Some(0x84));
+        let z = self.position.read_f32_rel(Some(0x88));
+
+        return Vector3f::new(x, y, z);
+    }
+
+    fn set_position(&self, position: &Vector3f)
+    {
+        self.position.write_f32_rel(Some(0x80), position.x);
+        self.position.write_f32_rel(Some(0x84), position.y);
+        self.position.write_f32_rel(Some(0x88), position.z);
+    }
+}
+
+
 impl GetSetChrDbgFlags for Sekiro
 {
     fn get_flags(&self) -> Vec<ChrDbgFlag>
@@ -124,36 +149,12 @@ impl GetSetChrDbgFlags for Sekiro
     }
 }
 
-impl BasicPlayerPosition for Sekiro
+
+impl BufferedEventFlags for Sekiro
 {
-    fn get_position(&self) -> Vector3f
+    fn access_flag_storage(&self) -> &Arc<Mutex<Vec<EventFlag>>>
     {
-        if !self.process.is_attached()
-        {
-            return Vector3f::default();
-        }
-
-        let x = self.position.read_f32_rel(Some(0x80));
-        let y = self.position.read_f32_rel(Some(0x84));
-        let z = self.position.read_f32_rel(Some(0x88));
-
-        return Vector3f::new(x, y, z);
-    }
-
-    fn set_position(&self, position: &Vector3f)
-    {
-        self.position.write_f32_rel(Some(0x80), position.x);
-        self.position.write_f32_rel(Some(0x84), position.y);
-        self.position.write_f32_rel(Some(0x88), position.z);
-    }
-}
-
-impl EventFlagLogger for Sekiro
-{
-    fn get_buffered_flags(&mut self) -> Vec<EventFlag>
-    {
-        let mut event_flags = self.event_flags.lock().unwrap();
-        mem::replace(&mut event_flags, Vec::new())
+        return &self.event_flags;
     }
 
     fn get_event_flag_state(&self, event_flag: u32) -> bool {
@@ -206,8 +207,11 @@ impl Game for Sekiro
     fn get_dx_version(&self) -> DxVersion {
         DxVersion::Dx11
     }
+    fn event_flags(&mut self) -> Option<Box<&mut dyn BufferedEventFlags>> { Some(Box::new(self)) }
 
-    fn get_widgets(&self) -> Vec<Box<dyn Widget>> {
-        vec![Box::new(EventFlagWidget::new()), Box::new(BasicPositionsWidget::new()), Box::new(ChrDbgFlagsWidget::new()), Box::new(MiscWidget::new())]
+    fn as_any(&self) -> &dyn Any
+    {
+        self
     }
+    fn as_any_mut(&mut self) -> &mut dyn Any { self }
 }

@@ -15,9 +15,9 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use imgui::Ui;
-use crate::games::{GameEnum};
+use crate::games::Game;
 
 pub trait Widget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui);
+    fn render(&mut self, game: &mut Box<dyn Game>, ui: &Ui);
 }

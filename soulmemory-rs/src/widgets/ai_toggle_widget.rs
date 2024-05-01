@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+use std::ops::DerefMut;
 use imgui::{TreeNodeFlags, Ui};
-use crate::games::{GameEnum};
-use crate::gui::widget::Widget;
+use crate::games::*;
+use crate::widgets::widget::Widget;
 use crate::tas::toggle_mode::ToggleMode;
 
 pub struct AiToggleWidget
@@ -34,9 +35,9 @@ impl AiToggleWidget
 
 impl Widget for AiToggleWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
+    fn render(&mut self, game: &mut Box<dyn Game>, ui: &Ui)
     {
-        if let GameEnum::DarkSoulsRemastered(dsr) = game
+        if let Some(dsr) = GameExt::get_game_mut::<DarkSoulsRemastered>(game.deref_mut())
         {
             if ui.collapsing_header("AI timer", TreeNodeFlags::FRAMED)
             {

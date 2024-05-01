@@ -15,8 +15,9 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use imgui::{TreeNodeFlags, Ui};
-use crate::games::{EventFlag, EventFlagLogger, GameEnum};
-use crate::gui::widget::Widget;
+use crate::games::traits::buffered_event_flags::EventFlag;
+use crate::games::*;
+use crate::widgets::widget::Widget;
 
 const EVENT_FLAG_SCROLL_REGION_HEIGHT: f32 = 400.0f32;
 
@@ -51,7 +52,7 @@ impl EventFlagWidget
         }
     }
 
-    fn tab_event_flag_log(&mut self, ui: &Ui, _game: &mut GameEnum)
+    fn tab_event_flag_log(&mut self, ui: &Ui, _game: &mut Box<dyn Game>)
     {
         if let Some(log) = ui.tab_item("Log")
         {
@@ -73,7 +74,7 @@ impl EventFlagWidget
         }
     }
 
-    fn tab_exclusions(&mut self, ui: &Ui, _game: &mut GameEnum)
+    fn tab_exclusions(&mut self, ui: &Ui, _game: &mut Box<dyn Game>)
     {
         if let Some(exclusions) = ui.tab_item("exclusions")
         {
@@ -108,7 +109,7 @@ impl EventFlagWidget
         }
     }
 
-    fn tab_watch_event_flags(&mut self, ui: &Ui, game: &mut GameEnum)
+    fn tab_watch_event_flags(&mut self, ui: &Ui, game:  &mut Box<dyn Game>)
     {
         //Watch event flags
         if let Some(watch) = ui.tab_item("watch")
@@ -125,16 +126,20 @@ impl EventFlagWidget
                     ui.text(format!("{: >10}", self.watched_flags[i].to_string()));
                     ui.same_line();
 
-                    let flag_val = game.get_event_flag_state(self.watched_flags[i]);
-                    ui.text(format!("{: >5}", flag_val));
-                    ui.same_line();
-
-                    let id = ui.push_id(i.to_string());
-                    if ui.button("delete")
+                    if let Some(buffered_event_flags) = game.event_flags()
                     {
-                        delete_flag_index = Some(i);
+                        let flag_val = buffered_event_flags.get_event_flag_state(self.watched_flags[i]);
+                        ui.text(format!("{: >5}", flag_val));
+                        ui.same_line();
+
+                        let id = ui.push_id(i.to_string());
+                        if ui.button("delete")
+                        {
+                            delete_flag_index = Some(i);
+                        }
+                        id.end();
                     }
-                    id.end();
+
                 }
 
                 if let Some(index) = delete_flag_index
@@ -176,69 +181,72 @@ impl EventFlagWidget
 
 impl Widget for EventFlagWidget
 {
-    fn render(&mut self, game: &mut GameEnum, ui: &Ui)
+    fn render(&mut self, game: &mut Box<dyn Game>, ui: &Ui)
     {
-        let new_flags = game.get_buffered_flags();
-
-        for f in new_flags
+        if let Some(event_flags) = game.event_flags()
         {
-            match self.selected_log_mode_index
+            let new_flags = event_flags.get_buffered_flags();
+            for f in new_flags
             {
-                0 => //let everything through
+                match self.selected_log_mode_index
                 {
-                    let formatted = f.to_string();
-                    self.event_flags.push((f, formatted));
-                }
-
-                //Unique flags
-                1 =>
-                {
-                    if self.unique_event_flags.iter().find(|p| p.flag == f.flag).is_none()
+                    0 => //let everything through
                     {
-                        self.unique_event_flags.push(f);
                         let formatted = f.to_string();
                         self.event_flags.push((f, formatted));
                     }
-                }
 
-                //Exclusion list
-                2 =>
-                {
-                    if self.excluded_flags.iter().find(|p| **p == f.flag).is_none()
+                    //Unique flags
+                    1 =>
                     {
-                        self.event_flags.push((f, f.to_string()));
+                        if self.unique_event_flags.iter().find(|p| p.flag == f.flag).is_none()
+                        {
+                            self.unique_event_flags.push(f);
+                            let formatted = f.to_string();
+                            self.event_flags.push((f, formatted));
+                        }
                     }
+
+                    //Exclusion list
+                    2 =>
+                    {
+                        if self.excluded_flags.iter().find(|p| **p == f.flag).is_none()
+                        {
+                            self.event_flags.push((f, f.to_string()));
+                        }
+                    }
+
+                    _ => {}
                 }
-                _ => {}
-            }
-        }
-
-        while self.event_flags.len() > 100
-        {
-            self.event_flags.remove(0);
-        }
-
-        if ui.collapsing_header("event flags", TreeNodeFlags::FRAMED)
-        {
-            ui.text("Log mode:");
-            ui.radio_button("All", &mut self.selected_log_mode_index, 0);
-
-            ui.radio_button("Unique", &mut self.selected_log_mode_index, 1);
-            ui.same_line();
-            if ui.button("clear unique list")
-            {
-                self.unique_event_flags.clear();
             }
 
-            ui.radio_button("Use exclusions", &mut self.selected_log_mode_index, 2);
-
-            if let Some(tab_bar) = ui.tab_bar("event_flags")
+            while self.event_flags.len() > 100
             {
-                self.tab_event_flag_log(ui, game);
-                self.tab_exclusions(ui, game);
-                self.tab_watch_event_flags(ui, game);
-                tab_bar.end();
-            };
+                self.event_flags.remove(0);
+            }
+
+            if ui.collapsing_header("event flags", TreeNodeFlags::FRAMED)
+            {
+                ui.text("Log mode:");
+                ui.radio_button("All", &mut self.selected_log_mode_index, 0);
+
+                ui.radio_button("Unique", &mut self.selected_log_mode_index, 1);
+                ui.same_line();
+                if ui.button("clear unique list")
+                {
+                    self.unique_event_flags.clear();
+                }
+
+                ui.radio_button("Use exclusions", &mut self.selected_log_mode_index, 2);
+
+                if let Some(tab_bar) = ui.tab_bar("event_flags")
+                {
+                    self.tab_event_flag_log(ui, game);
+                    self.tab_exclusions(ui, game);
+                    self.tab_watch_event_flags(ui, game);
+                    tab_bar.end();
+                };
+            }
         }
     }
 }

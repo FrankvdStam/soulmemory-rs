@@ -17,19 +17,18 @@
 use std::sync::{Arc, Mutex};
 use windows::Win32::Foundation::HINSTANCE;
 use imgui::{Condition, Ui};
-use crate::games::{Game, GameEnum};
-use crate::games::dark_souls_3::DarkSouls3;
-use crate::games::sekiro::Sekiro;
-use crate::games::elden_ring::EldenRing;
-use crate::games::armored_core_6::ArmoredCore6;
-use crate::games::prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
-use crate::games::remastered::DarkSoulsRemastered;
-use crate::gui::widget::Widget;
+use crate::widgets::widget::Widget;
 use crate::util::server::Server;
+use crate::widgets::ai_toggle_widget::AiToggleWidget;
+use crate::widgets::basic_position_widget::BasicPositionsWidget;
+use crate::widgets::chr_dbg_flags_widget::ChrDbgFlagsWidget;
+use crate::widgets::event_flag_widget::EventFlagWidget;
+use crate::widgets::misc_widget::MiscWidget;
+use crate::games::*;
 
 pub struct App
 {
-    pub game: GameEnum,
+    pub game: Box<dyn Game>,
     pub hmodule: HINSTANCE,
     #[allow(dead_code)]
     server: Server,
@@ -65,26 +64,34 @@ impl App
     pub fn new(process_name: &String, hmodule: HINSTANCE) -> Self
     {
         //Init the game we're injected in
-        let game: GameEnum = match process_name.to_lowercase().as_str()
+        let game: Box<dyn Game> = match process_name.to_lowercase().as_str()
         {
-            "darksouls.exe"             => GameEnum::DarkSoulsPrepareToDieEdition(DarkSoulsPrepareToDieEdition::new()),
-            "darksoulsremastered.exe"   => GameEnum::DarkSoulsRemastered(DarkSoulsRemastered::new()),
-            "darksoulsiii.exe"          => GameEnum::DarkSouls3(DarkSouls3::new()),
-            "sekiro.exe"                => GameEnum::Sekiro(Sekiro::new()),
-            "eldenring.exe"             => GameEnum::EldenRing(EldenRing::new()),
-            "armoredcore6.exe"          => GameEnum::ArmoredCore6(ArmoredCore6::new()),
+            "mockgame.exe"              => Box::new(MockGame::new()),
+            "darksouls.exe"             => Box::new(DarkSoulsPrepareToDieEdition::new()),
+            "darksoulsremastered.exe"   => Box::new(DarkSoulsRemastered::new()),
+            "darksoulsiii.exe"          => Box::new(DarkSouls3::new()),
+            "sekiro.exe"                => Box::new(Sekiro::new()),
+            "eldenring.exe"             => Box::new(EldenRing::new()),
+            "armoredcore6.exe"          => Box::new(ArmoredCore6::new()),
             _                           => panic!("unsupported process: {}", process_name.to_lowercase()),
         };
 
         //get drawable widgets
-        let widgets = game.get_widgets();
+        //let widgets = game.get_widgets();
 
         App
         {
             game,
             hmodule,
             server: Server::new(String::from("127.0.0.1:54345")),
-            widgets
+            widgets: vec!
+            {
+                Box::new(EventFlagWidget::new()),
+                Box::new(AiToggleWidget::new()),
+                Box::new(BasicPositionsWidget::new()),
+                Box::new(ChrDbgFlagsWidget::new()),
+                Box::new(MiscWidget::new()),
+            }
         }
     }
 
@@ -96,7 +103,10 @@ impl App
 
     pub fn render(&mut self, ui: &mut Ui)
     {
-        ui.window("soulmemory-rs").size([350.0, 800.0], Condition::FirstUseEver).build(||
+        ui.window("soulmemory-rs")
+            .position([50.0f32, 50.0f32], Condition::Appearing)
+            .size([350.0, 800.0], Condition::Appearing)
+            .build(||
         {
             for w in &mut self.widgets
             {
@@ -116,7 +126,7 @@ impl Default for App
     {
         App
         {
-            game: GameEnum::DarkSoulsRemastered(DarkSoulsRemastered::new()),
+            game: Box::new(MockGame::new()),
             hmodule: HINSTANCE(0),
             server: Server::default(),
             widgets: Vec::new(),

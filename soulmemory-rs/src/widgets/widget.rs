@@ -15,7 +15,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use imgui::Ui;
-use crate::games::traits::game::Game;
+use crate::games::Game;
 
 pub trait Widget
 {

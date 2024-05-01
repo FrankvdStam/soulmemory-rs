@@ -16,7 +16,7 @@
 
 use imgui::{TreeNodeFlags, Ui};
 use crate::games::traits::buffered_event_flags::EventFlag;
-use crate::games::traits::game::Game;
+use crate::games::*;
 use crate::widgets::widget::Widget;
 
 const EVENT_FLAG_SCROLL_REGION_HEIGHT: f32 = 400.0f32;

@@ -22,7 +22,7 @@ use log::info;
 use mem_rs::prelude::*;
 use crate::games::{ChrDbgFlag, GetSetChrDbgFlags};
 use crate::games::dx_version::DxVersion;
-use crate::games::traits::game::Game;
+use crate::games::game::Game;
 use crate::games::traits::player_position::PlayerPosition;
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
 use crate::util::vector3f::Vector3f;

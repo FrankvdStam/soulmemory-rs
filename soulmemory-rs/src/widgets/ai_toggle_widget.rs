@@ -16,9 +16,7 @@
 
 use std::ops::DerefMut;
 use imgui::{TreeNodeFlags, Ui};
-use crate::games::dark_souls_remastered::DarkSoulsRemastered;
-use crate::games::traits::game::Game;
-use crate::games::traits::game_ext::GameExt;
+use crate::games::*;
 use crate::widgets::widget::Widget;
 use crate::tas::toggle_mode::ToggleMode;
 

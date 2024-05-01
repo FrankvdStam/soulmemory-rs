@@ -1,10 +1,8 @@
 use crate::widgets::widget::Widget;
 use imgui::{TreeNodeFlags, Ui};
 use windows::Win32::UI::Input::KeyboardAndMouse::VK_OEM_5;
-use crate::games::sekiro::Sekiro;
-use crate::games::traits::game::{Game};
+use crate::games::*;
 use std::ops::DerefMut;
-use crate::games::traits::game_ext::GameExt;
 
 pub struct MiscWidget
 {

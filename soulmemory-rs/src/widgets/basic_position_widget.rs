@@ -1,6 +1,6 @@
 use imgui::{TreeNodeFlags, Ui};
 use log::info;
-use crate::games::traits::game::Game;
+use crate::games::*;
 use crate::widgets::widget::Widget;
 use crate::util::vector3f::Vector3f;
 

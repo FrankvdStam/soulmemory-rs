@@ -22,7 +22,7 @@ use log::info;
 use mem_rs::prelude::*;
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
 use crate::games::dx_version::DxVersion;
-use crate::games::traits::game::Game;
+use crate::games::game::Game;
 
 static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, i32); }
 

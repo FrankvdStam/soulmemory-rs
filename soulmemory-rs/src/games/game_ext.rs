@@ -1,4 +1,4 @@
-use crate::games::traits::game::Game;
+use crate::games::game::Game;
 
 pub struct GameExt;
 

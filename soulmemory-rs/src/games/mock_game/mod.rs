@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::sync::{Arc, Mutex};
 use rand::random;
-use crate::games::traits::game::Game;
+use crate::games::game::Game;
 use crate::games::dx_version::DxVersion;
 use crate::games::traits::buffered_event_flags::BufferedEventFlags;
 use crate::games::traits::buffered_event_flags::EventFlag;

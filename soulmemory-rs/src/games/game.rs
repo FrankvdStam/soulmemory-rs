@@ -3,7 +3,6 @@ use crate::games::dx_version::DxVersion;
 use crate::games::traits::buffered_event_flags::BufferedEventFlags;
 use crate::games::traits::player_position::PlayerPosition;
 
-
 pub trait Game
 {
     fn refresh(&mut self) -> Result<(), String>;

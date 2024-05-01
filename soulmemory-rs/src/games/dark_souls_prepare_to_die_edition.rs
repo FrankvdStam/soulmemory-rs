@@ -24,8 +24,8 @@ use ilhook::x86::{Hooker, HookType, Registers, CallbackOption, HookFlags, HookPo
 use crate::App;
 use crate::games::dx_version::DxVersion;
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
-use crate::games::traits::game::{Game};
-use crate::games::traits::game_ext::GameExt;
+use crate::games::game::{Game};
+use crate::games::game_ext::GameExt;
 use crate::util::{get_stack_u32, get_stack_u8};
 
 pub struct DarkSoulsPrepareToDieEdition

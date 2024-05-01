@@ -2,7 +2,8 @@ use std::ops::Deref;
 use imgui::{Condition, TreeNodeFlags, Ui};
 use windows::Win32::Foundation::HINSTANCE;
 use rand::random;
-use soulmemory_rs::{App, GameExt, MockGame};
+use soulmemory_rs::App;
+use soulmemory_rs::games::*;
 
 mod support;
 

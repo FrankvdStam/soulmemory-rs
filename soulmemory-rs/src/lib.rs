@@ -18,7 +18,7 @@
 
 mod util;
 pub mod app;
-mod games;
+pub mod games;
 mod widgets;
 mod tas;
 mod render_hooks;
@@ -33,12 +33,7 @@ use windows::Win32::System::SystemServices::{DLL_PROCESS_ATTACH, DLL_PROCESS_DET
 use crate::render_hooks::RenderHooks;
 
 
-
 pub use app::App;
-pub use games::traits::game::Game;
-pub use games::traits::game_ext::GameExt;
-pub use games::mock_game::MockGame;
-pub use games::traits::buffered_event_flags::EventFlag;
 
 static mut HMODULE: HINSTANCE = HINSTANCE(0);
 

@@ -17,14 +17,6 @@
 use std::sync::{Arc, Mutex};
 use windows::Win32::Foundation::HINSTANCE;
 use imgui::{Condition, Ui};
-use crate::games::dark_souls_3::DarkSouls3;
-use crate::games::sekiro::Sekiro;
-use crate::games::elden_ring::EldenRing;
-use crate::games::armored_core_6::ArmoredCore6;
-use crate::games::dark_souls_prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
-use crate::games::dark_souls_remastered::DarkSoulsRemastered;
-use crate::games::mock_game::MockGame;
-use crate::games::traits::game::Game;
 use crate::widgets::widget::Widget;
 use crate::util::server::Server;
 use crate::widgets::ai_toggle_widget::AiToggleWidget;
@@ -32,6 +24,7 @@ use crate::widgets::basic_position_widget::BasicPositionsWidget;
 use crate::widgets::chr_dbg_flags_widget::ChrDbgFlagsWidget;
 use crate::widgets::event_flag_widget::EventFlagWidget;
 use crate::widgets::misc_widget::MiscWidget;
+use crate::games::*;
 
 pub struct App
 {

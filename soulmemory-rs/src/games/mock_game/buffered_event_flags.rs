@@ -10,7 +10,7 @@ impl BufferedEventFlags for MockGame
         return &self.event_flags;
     }
 
-    fn get_event_flag_state(&self, event_flag: u32) -> bool
+    fn get_event_flag_state(&self, _event_flag: u32) -> bool
     {
         return true;
     }

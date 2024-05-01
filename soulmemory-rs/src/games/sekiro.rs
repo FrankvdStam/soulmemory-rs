@@ -20,12 +20,11 @@ use std::sync::{Arc, Mutex};
 use retour::static_detour;
 use log::info;
 use mem_rs::prelude::*;
-use crate::games::{BasicPlayerPosition, ChrDbgFlag, GetSetChrDbgFlags};
+use crate::games::{ChrDbgFlag, GetSetChrDbgFlags};
 use crate::games::dx_version::DxVersion;
 use crate::games::traits::game::Game;
 use crate::games::traits::player_position::PlayerPosition;
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
-use crate::widgets::widget::Widget;
 use crate::util::vector3f::Vector3f;
 
 static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, u8, u8); }
@@ -214,4 +213,5 @@ impl Game for Sekiro
     {
         self
     }
+    fn as_any_mut(&mut self) -> &mut dyn Any { self }
 }

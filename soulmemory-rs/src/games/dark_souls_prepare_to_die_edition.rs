@@ -15,12 +15,10 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use std::any::Any;
-use std::mem;
 use std::sync::{Arc, Mutex};
 use log::info;
 use mem_rs::pointer::Pointer;
 use mem_rs::prelude::{Process, ReadWrite};
-use crate::widgets::widget::Widget;
 use ilhook::x86::{Hooker, HookType, Registers, CallbackOption, HookFlags, HookPoint};
 use crate::App;
 use crate::games::dx_version::DxVersion;
@@ -116,6 +114,7 @@ impl Game for DarkSoulsPrepareToDieEdition
     {
         self
     }
+    fn as_any_mut(&mut self) -> &mut dyn Any { self }
 }
 
 //Credit to JKAnderson for the event flag reading code, https://github.com/JKAnderson/DS-Gadget

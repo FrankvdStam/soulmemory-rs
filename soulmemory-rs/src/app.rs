@@ -27,7 +27,11 @@ use crate::games::mock_game::MockGame;
 use crate::games::traits::game::Game;
 use crate::widgets::widget::Widget;
 use crate::util::server::Server;
+use crate::widgets::ai_toggle_widget::AiToggleWidget;
+use crate::widgets::basic_position_widget::BasicPositionsWidget;
+use crate::widgets::chr_dbg_flags_widget::ChrDbgFlagsWidget;
 use crate::widgets::event_flag_widget::EventFlagWidget;
+use crate::widgets::misc_widget::MiscWidget;
 
 pub struct App
 {
@@ -87,7 +91,14 @@ impl App
             game,
             hmodule,
             server: Server::new(String::from("127.0.0.1:54345")),
-            widgets: vec!{Box::new(EventFlagWidget::new())}
+            widgets: vec!
+            {
+                Box::new(EventFlagWidget::new()),
+                Box::new(AiToggleWidget::new()),
+                Box::new(BasicPositionsWidget::new()),
+                Box::new(ChrDbgFlagsWidget::new()),
+                Box::new(MiscWidget::new()),
+            }
         }
     }
 

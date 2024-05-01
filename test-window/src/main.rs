@@ -1,8 +1,7 @@
-use std::any::Any;
 use imgui::{Condition, TreeNodeFlags, Ui};
 use windows::Win32::Foundation::HINSTANCE;
 use rand::random;
-use soulmemory_rs::{App, EventFlag, MockGame};
+use soulmemory_rs::{App, MockGame};
 
 mod support;
 

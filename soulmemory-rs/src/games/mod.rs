@@ -14,10 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use std::fmt::Display;
-use crate::widgets::widget::Widget;
-use crate::util::vector3f::Vector3f;
-
 pub mod traits;
 pub mod dark_souls_remastered;
 pub mod dark_souls_prepare_to_die_edition;
@@ -29,12 +25,6 @@ pub mod mock_game;
 pub mod dx_version;
 
 pub type ChrDbgFlag = (u32, String, bool);
-
-pub trait BasicPlayerPosition
-{
-    fn get_position(&self) -> Vector3f;
-    fn set_position(&self, position: &Vector3f);
-}
 
 pub trait GetSetChrDbgFlags
 {

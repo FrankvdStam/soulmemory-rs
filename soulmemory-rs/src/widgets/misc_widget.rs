@@ -2,7 +2,8 @@ use crate::widgets::widget::Widget;
 use imgui::{TreeNodeFlags, Ui};
 use windows::Win32::UI::Input::KeyboardAndMouse::VK_OEM_5;
 use crate::games::sekiro::Sekiro;
-use crate::games::traits::game::Game;
+use crate::games::traits::game::{Game, GameExt};
+use std::ops::DerefMut;
 
 pub struct MiscWidget
 {
@@ -28,7 +29,7 @@ impl Widget for MiscWidget
     {
         if ui.collapsing_header("misc", TreeNodeFlags::FRAMED)
         {
-            if let GameEnum::Sekiro(sekiro) = game
+            if let Some(sekiro) = GameExt::get_game_mut::<Sekiro>(game.deref_mut())
             {
                 self.render_misc_sekiro(sekiro, ui);
             }

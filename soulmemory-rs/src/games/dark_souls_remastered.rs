@@ -16,7 +16,6 @@
 
 use std::{mem};
 use std::any::Any;
-use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use retour::static_detour;
 use log::info;
@@ -25,7 +24,6 @@ use windows::Win32::UI::Input::XboxController::XINPUT_STATE;
 use crate::App;
 use crate::games::dx_version::DxVersion;
 use crate::games::traits::game::Game;
-use crate::widgets::widget::Widget;
 use crate::tas::tas::{get_xinput_get_state_fn, tas_ai_toggle};
 use crate::tas::toggle_mode::ToggleMode;
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
@@ -155,6 +153,7 @@ impl Game for DarkSoulsRemastered
     {
         self
     }
+    fn as_any_mut(&mut self) -> &mut dyn Any { self }
 }
 
 fn detour_xinput_get_state(dw_user_index: u32, xinput_state: *mut XINPUT_STATE) -> u32

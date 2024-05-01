@@ -23,7 +23,6 @@ use mem_rs::prelude::*;
 use crate::games::dx_version::DxVersion;
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
 use crate::games::traits::game::Game;
-use crate::widgets::widget::Widget;
 
 static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, u8, u8); }
 
@@ -117,4 +116,5 @@ impl Game for DarkSouls3
     {
         self
     }
+    fn as_any_mut(&mut self) -> &mut dyn Any { self }
 }

@@ -183,7 +183,7 @@ impl Widget for EventFlagWidget
 {
     fn render(&mut self, game: &mut Box<dyn Game>, ui: &Ui)
     {
-        if let Some(mut event_flags) = game.event_flags()
+        if let Some(event_flags) = game.event_flags()
         {
             let new_flags = event_flags.get_buffered_flags();
             for f in new_flags
@@ -191,30 +191,31 @@ impl Widget for EventFlagWidget
                 match self.selected_log_mode_index
                 {
                     0 => //let everything through
-                        {
-                            let formatted = f.to_string();
-                            self.event_flags.push((f, formatted));
-                        }
+                    {
+                        let formatted = f.to_string();
+                        self.event_flags.push((f, formatted));
+                    }
 
                     //Unique flags
                     1 =>
+                    {
+                        if self.unique_event_flags.iter().find(|p| p.flag == f.flag).is_none()
                         {
-                            if self.unique_event_flags.iter().find(|p| p.flag == f.flag).is_none()
-                            {
-                                self.unique_event_flags.push(f);
-                                let formatted = f.to_string();
-                                self.event_flags.push((f, formatted));
-                            }
+                            self.unique_event_flags.push(f);
+                            let formatted = f.to_string();
+                            self.event_flags.push((f, formatted));
                         }
+                    }
 
                     //Exclusion list
                     2 =>
+                    {
+                        if self.excluded_flags.iter().find(|p| **p == f.flag).is_none()
                         {
-                            if self.excluded_flags.iter().find(|p| **p == f.flag).is_none()
-                            {
-                                self.event_flags.push((f, f.to_string()));
-                            }
+                            self.event_flags.push((f, f.to_string()));
                         }
+                    }
+
                     _ => {}
                 }
             }

@@ -16,12 +16,13 @@
 
 use std::{mem};
 use std::any::Any;
+use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use retour::static_detour;
 use log::info;
 use mem_rs::prelude::*;
 use windows::Win32::UI::Input::XboxController::XINPUT_STATE;
-use crate::App;
+use crate::{App, GameExt};
 use crate::games::dx_version::DxVersion;
 use crate::games::traits::game::Game;
 use crate::tas::tas::{get_xinput_get_state_fn, tas_ai_toggle};
@@ -161,7 +162,7 @@ fn detour_xinput_get_state(dw_user_index: u32, xinput_state: *mut XINPUT_STATE) 
     let instance = App::get_instance();
     let app = instance.lock().unwrap();
 
-    if let Some(dsr) = app.game.as_any().downcast_ref::<DarkSoulsRemastered>()
+    if let Some(dsr) = GameExt::get_game_ref::<DarkSoulsRemastered>(app.game.deref())
     {
         let res = unsafe{ STATIC_DETOUR_XINPUT_GET_STATE.call(dw_user_index, xinput_state) };
         tas_ai_toggle(dsr.ai_timer_toggle_mode, dsr.get_ai_timer_value(), dsr.ai_timer_toggle_threshold, xinput_state);

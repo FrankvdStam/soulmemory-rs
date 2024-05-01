@@ -18,7 +18,8 @@ use std::ops::DerefMut;
 use imgui::{TreeNodeFlags, Ui};
 use crate::games::{GetSetChrDbgFlags};
 use crate::games::sekiro::Sekiro;
-use crate::games::traits::game::{Game, GameExt};
+use crate::games::traits::game::{Game};
+use crate::games::traits::game_ext::GameExt;
 use crate::widgets::widget::Widget;
 
 pub struct ChrDbgFlagsWidget

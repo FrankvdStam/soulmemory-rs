@@ -1,7 +1,8 @@
+use std::ops::Deref;
 use imgui::{Condition, TreeNodeFlags, Ui};
 use windows::Win32::Foundation::HINSTANCE;
 use rand::random;
-use soulmemory_rs::{App, MockGame};
+use soulmemory_rs::{App, GameExt, MockGame};
 
 mod support;
 
@@ -37,7 +38,7 @@ fn draw_controls(ui: &mut Ui, app: &mut App)
 
         if ui.collapsing_header("event flags", TreeNodeFlags::DEFAULT_OPEN)
         {
-            if let Some(mock_game) = app.game.as_any().downcast_ref::<MockGame>()
+            if let Some(mock_game) = GameExt::get_game_ref::<MockGame>(app.game.deref())
             {
                 if ui.button("raise random event flag")
                 {

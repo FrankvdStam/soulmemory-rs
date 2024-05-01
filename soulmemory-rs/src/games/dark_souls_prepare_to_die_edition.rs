@@ -15,6 +15,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use std::any::Any;
+use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use log::info;
 use mem_rs::pointer::Pointer;
@@ -23,7 +24,8 @@ use ilhook::x86::{Hooker, HookType, Registers, CallbackOption, HookFlags, HookPo
 use crate::App;
 use crate::games::dx_version::DxVersion;
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
-use crate::games::traits::game::Game;
+use crate::games::traits::game::{Game};
+use crate::games::traits::game_ext::GameExt;
 use crate::util::{get_stack_u32, get_stack_u8};
 
 pub struct DarkSoulsPrepareToDieEdition
@@ -81,8 +83,7 @@ impl Game for DarkSoulsPrepareToDieEdition
                     let instance = App::get_instance();
                     let app = instance.lock().unwrap();
 
-                    let any: &dyn Any = &app.game;
-                    if let Some(ptde) = any.downcast_ref::<DarkSoulsPrepareToDieEdition>()
+                    if let Some(ptde) = GameExt::get_game_ref::<DarkSoulsPrepareToDieEdition>(app.game.deref())
                     {
                         let value           = get_stack_u8((*reg).esp, 0x8);
                         let event_flag_id   = get_stack_u32((*reg).esp, 0x4);

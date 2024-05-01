@@ -35,7 +35,8 @@ use crate::render_hooks::RenderHooks;
 
 
 pub use app::App;
-
+pub use games::traits::game::Game;
+pub use games::traits::game_ext::GameExt;
 pub use games::mock_game::MockGame;
 pub use games::traits::buffered_event_flags::EventFlag;
 

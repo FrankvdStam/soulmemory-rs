@@ -209,8 +209,6 @@ impl Game for Sekiro
     }
     fn event_flags(&mut self) -> Option<Box<&mut dyn BufferedEventFlags>> { Some(Box::new(self)) }
     fn player_position(&mut self) -> Option<Box<&mut dyn PlayerPosition>>{ Some(Box::new(self)) }
-
-
     fn as_any(&self) -> &dyn Any
     {
         self

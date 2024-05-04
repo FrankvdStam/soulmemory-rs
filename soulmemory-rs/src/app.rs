@@ -15,8 +15,9 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use std::sync::{Arc, Mutex};
-use windows::Win32::Foundation::HINSTANCE;
+use windows::Win32::Foundation::{BOOL, HINSTANCE};
 use imgui::{Condition, Ui};
+use windows::Win32::System::Threading::{GetCurrentProcess, IsWow64Process};
 use crate::widgets::widget::Widget;
 use crate::util::server::Server;
 use crate::widgets::ai_toggle_widget::AiToggleWidget;
@@ -68,6 +69,18 @@ impl App
         {
             "mockgame.exe"              => Box::new(MockGame::new()),
             "darksouls.exe"             => Box::new(DarkSoulsPrepareToDieEdition::new()),
+            "darksoulsii.exe"           =>
+            {
+                let mut is64wow = BOOL(0);
+                if unsafe{ IsWow64Process(GetCurrentProcess(), &mut is64wow).is_ok() && !is64wow.as_bool() }
+                {
+                    Box::new(DarkSouls2ScholarOfTheFirstSin::new())
+                }
+                else
+                {
+                    Box::new(DarkSouls2Vanilla::new())
+                }
+            },
             "darksoulsremastered.exe"   => Box::new(DarkSoulsRemastered::new()),
             "darksoulsiii.exe"          => Box::new(DarkSouls3::new()),
             "sekiro.exe"                => Box::new(Sekiro::new()),

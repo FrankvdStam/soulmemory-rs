@@ -47,6 +47,7 @@ fn main()
             match process.to_lowercase().as_str()
             {
                 "darksoulsremastered.exe" |
+                "darksoulsii.exe" |
                 "darksoulsiii.exe" |
                 "sekiro.exe" |
                 "eldenring.exe" |
@@ -56,8 +57,6 @@ fn main()
                     p.refresh().unwrap();
                     p.inject_dll(dll_path.as_str()).unwrap();
                 }
-
-                "darksoulsii.exe" => todo!(), //check if 64 bit
                 _ => println!("unsupported process"),
             }
         }
@@ -65,7 +64,7 @@ fn main()
         {
             match process.to_lowercase().as_str()
             {
-                "darksouls.exe" =>
+                "darksouls.exe" | "darksoulsii.exe" =>
                 {
                     let mut p = Process::new(process.to_lowercase().as_str());
                     p.refresh().unwrap();

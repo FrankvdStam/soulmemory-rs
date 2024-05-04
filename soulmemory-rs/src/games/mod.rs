@@ -25,6 +25,8 @@ mod mock_game;
 pub mod dx_version;
 mod game;
 mod game_ext;
+mod dark_souls_2_scholar_of_the_first_sin;
+mod dark_souls_2_vanilla;
 
 pub use game::Game;
 pub use game_ext::GameExt;
@@ -33,6 +35,8 @@ pub use game_ext::GameExt;
 pub use mock_game::MockGame;
 pub use dark_souls_remastered::DarkSoulsRemastered;
 pub use dark_souls_prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
+pub use dark_souls_2_scholar_of_the_first_sin::DarkSouls2ScholarOfTheFirstSin;
+pub use dark_souls_2_vanilla::DarkSouls2Vanilla;
 pub use dark_souls_3::DarkSouls3;
 pub use sekiro::Sekiro;
 pub use elden_ring::EldenRing;

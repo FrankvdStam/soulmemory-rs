@@ -4,18 +4,18 @@ use crate::games::*;
 use crate::widgets::widget::Widget;
 use crate::util::vector3f::Vector3f;
 
-pub struct BasicPositionsWidget
+pub struct PlayerPositionWidget
 {
     position_input_vec: Vector3f,
     position_input_text: String,
     positions: Vec<(String, Vector3f)>,
 }
 
-impl BasicPositionsWidget
+impl PlayerPositionWidget
 {
     pub fn new() -> Self
     {
-        BasicPositionsWidget
+        PlayerPositionWidget
         {
             position_input_vec: Vector3f::default(),
             position_input_text: String::new(),
@@ -25,7 +25,7 @@ impl BasicPositionsWidget
 }
 
 
-impl Widget for BasicPositionsWidget
+impl Widget for PlayerPositionWidget
 {
     fn render(&mut self, game: &mut Box<dyn Game>, ui: &Ui)
     {

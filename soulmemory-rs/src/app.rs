@@ -20,7 +20,7 @@ use imgui::{Condition, Ui};
 use crate::widgets::widget::Widget;
 use crate::util::server::Server;
 use crate::widgets::ai_toggle_widget::AiToggleWidget;
-use crate::widgets::basic_position_widget::BasicPositionsWidget;
+use crate::widgets::basic_position_widget::PlayerPositionWidget;
 use crate::widgets::chr_dbg_flags_widget::ChrDbgFlagsWidget;
 use crate::widgets::event_flag_widget::EventFlagWidget;
 use crate::widgets::misc_widget::MiscWidget;
@@ -88,7 +88,7 @@ impl App
             {
                 Box::new(EventFlagWidget::new()),
                 Box::new(AiToggleWidget::new()),
-                Box::new(BasicPositionsWidget::new()),
+                Box::new(PlayerPositionWidget::new()),
                 Box::new(ChrDbgFlagsWidget::new()),
                 Box::new(MiscWidget::new()),
             }

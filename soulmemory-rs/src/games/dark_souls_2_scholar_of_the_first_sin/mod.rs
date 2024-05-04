@@ -1,3 +1,6 @@
+#[cfg(target_pointer_width = "32")]
+#[allow(dead_code)]
+
 mod buffered_event_flags;
 
 use std::any::Any;
@@ -49,7 +52,6 @@ impl Game for DarkSouls2ScholarOfTheFirstSin
     #[cfg(target_pointer_width = "64")]
     fn refresh(&mut self) -> Result<(), String>
     {
-
         if !self.process.is_attached()
         {
             unsafe

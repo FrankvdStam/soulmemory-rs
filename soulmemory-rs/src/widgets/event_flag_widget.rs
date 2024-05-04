@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use imgui::{TreeNodeFlags, Ui};
-use crate::games::traits::buffered_event_flags::EventFlag;
+use imgui::{TableFlags, TreeNodeFlags, Ui};
+use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
 use crate::games::*;
 use crate::widgets::widget::Widget;
 
@@ -23,13 +23,14 @@ const EVENT_FLAG_SCROLL_REGION_HEIGHT: f32 = 400.0f32;
 
 pub struct EventFlagWidget
 {
+    copy_fade: f32,
     selected_log_mode_index: u32,
     unique_event_flags: Vec<EventFlag>,
 
-    event_flags: Vec<(EventFlag, String)>,
+    event_flags: Vec<EventFlag>,
 
-    excluded_flags: Vec<u32>,
-    exclusion_flag_input: String,
+    blacklisted_flags: Vec<u32>,
+    blacklist_flag_input: String,
 
     watched_flags: Vec<u32>,
     watch_flag_input: String,
@@ -40,12 +41,13 @@ impl EventFlagWidget
     pub fn new() -> Self{
         EventFlagWidget
         {
+            copy_fade: 0.0f32,
             selected_log_mode_index: 1, //Select unqiue flags by default
             unique_event_flags: Vec::new(),
             event_flags: Vec::new(),
 
-            excluded_flags: Vec::new(),
-            exclusion_flag_input: String::new(),
+            blacklisted_flags: Vec::new(),
+            blacklist_flag_input: String::new(),
 
             watched_flags: Vec::new(),
             watch_flag_input: String::new(),
@@ -65,30 +67,71 @@ impl EventFlagWidget
                 .size([ui.content_region_avail()[0], EVENT_FLAG_SCROLL_REGION_HEIGHT])
                 .build(||
             {
-                for f in self.event_flags.iter()
+                if let Some(_table_token) = ui.begin_table_with_flags("event flags", 3, TableFlags::HIDEABLE | TableFlags::RESIZABLE)
                 {
-                    ui.text(&f.1);
+                    ui.table_setup_column("time");
+                    ui.table_setup_column("flag");
+                    ui.table_setup_column("value");
+                    ui.table_headers_row();
+
+                    let mut index = 0;
+                    for f in self.event_flags.iter()
+                    {
+
+                        //display time + setup selectable
+                        ui.table_next_column();
+                        let selectable_stack_token = ui.push_id(index.to_string());
+                        if ui.selectable_config(format!("{}", f.time.format("%H:%M:%S"))).span_all_columns(true).build()
+                        {
+                            self.copy_fade = 1.0f32;
+                            ui.set_clipboard_text(f.flag.to_string());
+                        }
+                        selectable_stack_token.pop();
+
+                        //flag
+                        ui.table_next_column();
+                        ui.text(f.flag.to_string());
+
+                        //flag val
+                        ui.table_next_column();
+                        if f.state
+                        {
+                            ui.text_colored([0.0f32, 1.0f32, 0.0f32, 1.0f32], "true")
+                        }
+                        else
+                        {
+                            ui.text_colored([1.0f32, 0.0f32, 0.0f32, 1.0f32], "false")
+                        }
+                        index += 1;
+                    }
                 }
             });
+            ui.text_colored([1.0f32, 1.0f32, 1.0f32, self.copy_fade], "Flag copied to clipboard");
+
+            if self.copy_fade > 0.0f32
+            {
+                self.copy_fade = self.copy_fade - 0.005f32;
+            }
+
             log.end();
         }
     }
 
-    fn tab_exclusions(&mut self, ui: &Ui, _game: &mut Box<dyn Game>)
+    fn tab_blacklist(&mut self, ui: &Ui, _game: &mut Box<dyn Game>)
     {
-        if let Some(exclusions) = ui.tab_item("exclusions")
+        if let Some(blacklist) = ui.tab_item("blacklist")
         {
-            Self::flag_input_to_vec(ui, &mut self.exclusion_flag_input, &mut self.excluded_flags);
+            Self::flag_input_to_vec(ui, &mut self.blacklist_flag_input, &mut self.blacklisted_flags);
 
-            ui.child_window("exclusions_event_flags_scrollable")
+            ui.child_window("blacklist_event_flags_scrollable")
                 .size([ui.content_region_avail()[0], EVENT_FLAG_SCROLL_REGION_HEIGHT])
                 .build(||
             {
-                //Draw excluded flags with delete option
+                //Draw blacklisted flags with delete option
                 let mut delete_flag_index = None;
-                for i in 0..self.excluded_flags.len()
+                for i in 0..self.blacklisted_flags.len()
                 {
-                    ui.text(format!("{: >10}", self.excluded_flags[i].to_string()));
+                    ui.text(format!("{: >10}", self.blacklisted_flags[i].to_string()));
                     ui.same_line();
 
                     let id = ui.push_id(i.to_string());
@@ -101,11 +144,11 @@ impl EventFlagWidget
 
                 if let Some(index) = delete_flag_index
                 {
-                    self.excluded_flags.remove(index);
+                    self.blacklisted_flags.remove(index);
                 }
             });
 
-            exclusions.end();
+            blacklist.end();
         }
     }
 
@@ -177,72 +220,88 @@ impl EventFlagWidget
             }
         });
     }
+
+    fn buffer_flags(&mut self, event_flags: &mut Box<&mut dyn BufferedEventFlags>)
+    {
+        let new_flags = event_flags.get_buffered_flags();
+        for f in new_flags
+        {
+            match self.selected_log_mode_index
+            {
+                0 => //let everything through
+                {
+                    self.event_flags.push(f);
+                }
+
+                //Unique flags
+                1 =>
+                {
+                    if self.unique_event_flags.iter().find(|p| p.flag == f.flag).is_none()
+                    {
+                        self.unique_event_flags.push(f);
+                        self.event_flags.push(f);
+                    }
+                }
+
+                //blacklist
+                2 =>
+                {
+                    if self.blacklisted_flags.iter().find(|p| **p == f.flag).is_none()
+                    {
+                        self.event_flags.push(f);
+                    }
+                }
+
+                _ => {}
+            }
+        }
+
+        while self.event_flags.len() > 100
+        {
+            self.event_flags.remove(0);
+        }
+    }
 }
 
 impl Widget for EventFlagWidget
 {
     fn render(&mut self, game: &mut Box<dyn Game>, ui: &Ui)
     {
-        if let Some(event_flags) = game.event_flags()
+        if let Some(mut event_flags) = game.event_flags()
         {
-            let new_flags = event_flags.get_buffered_flags();
-            for f in new_flags
-            {
-                match self.selected_log_mode_index
-                {
-                    0 => //let everything through
-                    {
-                        let formatted = f.to_string();
-                        self.event_flags.push((f, formatted));
-                    }
-
-                    //Unique flags
-                    1 =>
-                    {
-                        if self.unique_event_flags.iter().find(|p| p.flag == f.flag).is_none()
-                        {
-                            self.unique_event_flags.push(f);
-                            let formatted = f.to_string();
-                            self.event_flags.push((f, formatted));
-                        }
-                    }
-
-                    //Exclusion list
-                    2 =>
-                    {
-                        if self.excluded_flags.iter().find(|p| **p == f.flag).is_none()
-                        {
-                            self.event_flags.push((f, f.to_string()));
-                        }
-                    }
-
-                    _ => {}
-                }
-            }
-
-            while self.event_flags.len() > 100
-            {
-                self.event_flags.remove(0);
-            }
+            self.buffer_flags(&mut event_flags);
 
             if ui.collapsing_header("event flags", TreeNodeFlags::FRAMED)
             {
                 ui.text("Log mode:");
                 ui.radio_button("All", &mut self.selected_log_mode_index, 0);
+                if ui.is_item_hovered()
+                {
+                    ui.tooltip_text("Shows all flags. Might get overwhelming in certain area's or when performing certain actions.");
+                }
 
                 ui.radio_button("Unique", &mut self.selected_log_mode_index, 1);
+                if ui.is_item_hovered()
+                {
+                    ui.tooltip_text("Shows every flag only once. Repeated flags are ignored. Use the clear button to reset which flags have been 'seen' before.");
+                }
+
                 ui.same_line();
                 if ui.button("clear unique list")
                 {
                     self.unique_event_flags.clear();
                 }
 
-                ui.radio_button("Use exclusions", &mut self.selected_log_mode_index, 2);
+                ui.radio_button("Use blacklist", &mut self.selected_log_mode_index, 2);
+                if ui.is_item_hovered()
+                {
+                    ui.tooltip_text("Use the blacklist tab to setup blacklisted flags, those flags will be ignored.");
+                }
 
                 if let Some(tab_bar) = ui.tab_bar("event_flags")
                 {
                     self.tab_event_flag_log(ui, game);
-                    self.tab_exclusions(ui, game);
+                    self.tab_blacklist(ui, game);
                     self.tab_watch_event_flags(ui, game);
                     tab_bar.end();
                 };

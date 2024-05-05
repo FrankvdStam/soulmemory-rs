@@ -101,31 +101,8 @@ impl Game for DarkSouls2ScholarOfTheFirstSin
                         {
                             let network_ptr = (*registers).rcx;
                             let network = scholar.process.create_pointer(network_ptr as usize, vec![0x18, 0x6c978]);
-                            info!("network {} message_id {} eventActionCategory {}", network_ptr, message_id, network.read_u32_rel(Some(0x10)));
+                            info!("network 0x{:x} message_id {} eventActionCategory {}", network_ptr, message_id, network.read_u32_rel(Some(0x10)));
                         }
-
-/*
-
-                        let addresses = vec!{
-                            morpheme_message as usize,
-                            (morpheme_message+4) as usize,
-                            (morpheme_message+8) as usize,
-                            (morpheme_message+12) as usize,
-                            (morpheme_message+16) as usize,
-                            (morpheme_message+20) as usize
-                        };
-
-                        info!("morpheme_message: {}", morpheme_message);
-                        for address in addresses
-                        {
-                            let mut buffer = [0; 4];
-                            scholar.process.read_memory_abs(address, &mut buffer);
-                            let value = u32::from_ne_bytes(buffer);
-
-                            info!("{} {}", address, value);
-                        }
-                        info!("===========================");
-                        */
                     }
                 }
 

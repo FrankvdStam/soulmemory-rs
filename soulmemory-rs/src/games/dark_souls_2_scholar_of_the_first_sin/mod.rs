@@ -13,7 +13,7 @@ use crate::games::dx_version::DxVersion;
 use crate::games::{Game, GameExt};
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
 
-type FnGetEventFlag = fn(event_flag_man: u64, event_flag: u32) -> u8;
+type FnGetEventFlag = unsafe extern "win64" fn(event_flag_man: u64, event_flag: u32) -> u8;
 
 pub struct DarkSouls2ScholarOfTheFirstSin
 {
@@ -29,6 +29,8 @@ impl DarkSouls2ScholarOfTheFirstSin
 {
     pub fn new() -> Self
     {
+        unsafe extern "win64" fn empty(_: u64, _: u32) -> u8 { 0 }
+
         DarkSouls2ScholarOfTheFirstSin
         {
             process: Process::new("darksoulsii.exe"),
@@ -36,7 +38,7 @@ impl DarkSouls2ScholarOfTheFirstSin
             event_flag_man: Default::default(),
             event_flags: Arc::new(Mutex::new(vec![])),
             set_event_flag_hook: None,
-            fn_get_event_flag: |_,_|{return 0},
+            fn_get_event_flag: empty,
         }
     }
 }

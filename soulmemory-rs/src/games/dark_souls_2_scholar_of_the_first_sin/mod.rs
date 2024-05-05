@@ -1,6 +1,3 @@
-#[cfg(target_pointer_width = "32")]
-#[allow(dead_code)]
-
 mod buffered_event_flags;
 
 use std::any::Any;
@@ -46,10 +43,6 @@ impl DarkSouls2ScholarOfTheFirstSin
 
 impl Game for DarkSouls2ScholarOfTheFirstSin
 {
-    #[cfg(target_pointer_width = "32")]
-    fn refresh(&mut self) -> Result<(), String> { unimplemented!("DarkSouls2ScholarOfTheFirstSin is only available for x64"); }
-
-    #[cfg(target_pointer_width = "64")]
     fn refresh(&mut self) -> Result<(), String>
     {
         if !self.process.is_attached()
@@ -62,6 +55,7 @@ impl Game for DarkSouls2ScholarOfTheFirstSin
                 let set_event_flag_address = self.process.scan_abs("set_event_flag" , "48 89 74 24 10 57 48 83 ec 20 8b fa 45 0f b6 d8", 0,  Vec::new())?.get_base_address();
 
                 self.fn_get_event_flag = mem::transmute(get_event_flag_address);
+
                 unsafe extern "win64" fn read_event_flag_hook_fn(registers: *mut Registers, _:usize)
                 {
                     let instance = App::get_instance();
@@ -92,9 +86,9 @@ impl Game for DarkSouls2ScholarOfTheFirstSin
         Ok(())
     }
 
-    fn event_flags(&mut self) -> Option<Box<&mut dyn BufferedEventFlags>> { Some(Box::new(self)) }
-
     fn get_dx_version(&self) -> DxVersion { DxVersion::Dx11 }
+
+    fn event_flags(&mut self) -> Option<Box<&mut dyn BufferedEventFlags>> { Some(Box::new(self)) }
 
     fn as_any(&self) -> &dyn Any { self }
 

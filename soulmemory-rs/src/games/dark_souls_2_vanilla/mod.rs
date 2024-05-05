@@ -1,5 +1,3 @@
-#[allow(dead_code)]
-
 mod buffered_event_flags;
 
 use std::any::Any;
@@ -46,10 +44,6 @@ impl DarkSouls2Vanilla
 
 impl Game for DarkSouls2Vanilla
 {
-    #[cfg(target_pointer_width = "64")]
-    fn refresh(&mut self) -> Result<(), String> { unimplemented!("DarkSouls2Vanilla is only available for x86"); }
-
-    #[cfg(target_pointer_width = "32")]
     fn refresh(&mut self) -> Result<(), String>
     {
         if !self.process.is_attached()
@@ -91,9 +85,9 @@ impl Game for DarkSouls2Vanilla
         Ok(())
     }
 
-    fn event_flags(&mut self) -> Option<Box<&mut dyn BufferedEventFlags>> { Some(Box::new(self)) }
-
     fn get_dx_version(&self) -> DxVersion { DxVersion::Dx9 }
+
+    fn event_flags(&mut self) -> Option<Box<&mut dyn BufferedEventFlags>> { Some(Box::new(self)) }
 
     fn as_any(&self) -> &dyn Any { self }
 

@@ -7,13 +7,14 @@ use std::sync::{Arc, Mutex};
 use ilhook::x64::{CallbackOption, Hooker, HookFlags, HookPoint, HookType, Registers};
 use log::info;
 use mem_rs::pointer::Pointer;
-use mem_rs::prelude::Process;
+use mem_rs::prelude::{BaseReadWrite, Process, ReadWrite};
 use crate::App;
 use crate::games::dx_version::DxVersion;
 use crate::games::{Game, GameExt};
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
 
 type FnGetEventFlag = unsafe extern "win64" fn(event_flag_man: u64, event_flag: u32) -> u8;
+type FnSendMorphemeMessage = unsafe extern "win64" fn(network: u64, morpheme_message: u64) -> u8;
 
 pub struct DarkSouls2ScholarOfTheFirstSin
 {
@@ -23,13 +24,15 @@ pub struct DarkSouls2ScholarOfTheFirstSin
     event_flags: Arc<Mutex<Vec<EventFlag>>>,
     set_event_flag_hook: Option<HookPoint>,
     fn_get_event_flag: FnGetEventFlag,
+
+    send_morpheme_message_hook: Option<HookPoint>,
 }
 
 impl DarkSouls2ScholarOfTheFirstSin
 {
     pub fn new() -> Self
     {
-        unsafe extern "win64" fn empty(_: u64, _: u32) -> u8 { 0 }
+        unsafe extern "win64" fn empty_get_event_flag(_: u64, _: u32) -> u8 { 0 }
 
         DarkSouls2ScholarOfTheFirstSin
         {
@@ -38,7 +41,9 @@ impl DarkSouls2ScholarOfTheFirstSin
             event_flag_man: Default::default(),
             event_flags: Arc::new(Mutex::new(vec![])),
             set_event_flag_hook: None,
-            fn_get_event_flag: empty,
+            fn_get_event_flag: empty_get_event_flag,
+
+            send_morpheme_message_hook: None,
         }
     }
 }
@@ -55,6 +60,7 @@ impl Game for DarkSouls2ScholarOfTheFirstSin
                 self.event_flag_man = self.process.scan_rel("GameDataMan" , "48 8b 35 ? ? ? ? 48 8b e9 48 85 f6", 3, 7, vec![0, 0x70, 0x20])?;
                 let get_event_flag_address = self.process.scan_abs("get_event_flag" , "44 8b d2 b8 ? ? ? ? f7 e2 44 8b ca", 0,  Vec::new())?.get_base_address();
                 let set_event_flag_address = self.process.scan_abs("set_event_flag" , "48 89 74 24 10 57 48 83 ec 20 8b fa 45 0f b6 d8", 0,  Vec::new())?.get_base_address();
+                let send_morpheme_message_address = self.process.scan_abs("send_morpheme_message" , "48 89 6c 24 10 48 89 74 24 18 48 89 7c 24 20 41 56 48 83 ec 20 48 8b 01 44 8b 4a 0c", 0,  Vec::new())?.get_base_address();
 
                 self.fn_get_event_flag = mem::transmute(get_event_flag_address);
 
@@ -76,9 +82,60 @@ impl Game for DarkSouls2ScholarOfTheFirstSin
                 let h = Hooker::new(set_event_flag_address, HookType::JmpBack(read_event_flag_hook_fn), CallbackOption::None, 0, HookFlags::empty());
                 self.set_event_flag_hook = Some(h.hook().unwrap());
 
-                info!("event_flag_man base address: 0x{:x}", self.event_flag_man.get_base_address());
-                info!("get event flag address     : 0x{:x}", get_event_flag_address);
-                info!("get event flag address     : 0x{:x}", get_event_flag_address);
+
+                unsafe extern "win64" fn send_morpheme_message_hook_fn(registers: *mut Registers, _:usize)
+                {
+
+                    let instance = App::get_instance();
+                    let app = instance.lock().unwrap();
+
+                    if let Some(scholar) = GameExt::get_game_ref::<DarkSouls2ScholarOfTheFirstSin>(app.game.deref())
+                    {
+                        let morpheme_message = (*registers).rdx;
+
+                        let mut buffer = [0; 4];
+                        scholar.process.read_memory_abs((morpheme_message + 12) as usize, &mut buffer);
+                        let message_id = u32::from_ne_bytes(buffer);
+
+                        if message_id == 30
+                        {
+                            let network_ptr = (*registers).rcx;
+                            let network = scholar.process.create_pointer(network_ptr as usize, vec![0x18, 0x6c978]);
+                            info!("network {} message_id {} eventActionCategory {}", network_ptr, message_id, network.read_u32_rel(Some(0x10)));
+                        }
+
+/*
+
+                        let addresses = vec!{
+                            morpheme_message as usize,
+                            (morpheme_message+4) as usize,
+                            (morpheme_message+8) as usize,
+                            (morpheme_message+12) as usize,
+                            (morpheme_message+16) as usize,
+                            (morpheme_message+20) as usize
+                        };
+
+                        info!("morpheme_message: {}", morpheme_message);
+                        for address in addresses
+                        {
+                            let mut buffer = [0; 4];
+                            scholar.process.read_memory_abs(address, &mut buffer);
+                            let value = u32::from_ne_bytes(buffer);
+
+                            info!("{} {}", address, value);
+                        }
+                        info!("===========================");
+                        */
+                    }
+                }
+
+                let h = Hooker::new(send_morpheme_message_address, HookType::JmpBack(send_morpheme_message_hook_fn), CallbackOption::None, 0, HookFlags::empty());
+                self.send_morpheme_message_hook = Some(h.hook().unwrap());
+
+                info!("event_flag_man base address          : 0x{:x}", self.event_flag_man.get_base_address());
+                info!("get_event_flag address               : 0x{:x}", get_event_flag_address);
+                info!("set_event_flag address               : 0x{:x}", set_event_flag_address);
+                info!("send_morpheme_message_address address: 0x{:x}", send_morpheme_message_address);
             }
         }
         else

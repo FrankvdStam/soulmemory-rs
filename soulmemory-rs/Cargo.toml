@@ -10,7 +10,7 @@ crate-type = ["lib", "cdylib"]
 retour = { version = "0.3.0", features = ["static-detour"] }
 ilhook = "2.1.0"
 
-mem-rs = "0.1.4"
+mem-rs = "0.1.5"
 #mem-rs = { path="C:/projects/mem-rs" }
 chrono = "0.4.19"
 lazy_static = "1.4.0"

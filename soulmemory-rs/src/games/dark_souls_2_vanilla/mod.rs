@@ -14,7 +14,7 @@ use crate::games::{Game, GameExt};
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
 use crate::util::{get_stack_u32, get_stack_u8};
 
-type FnGetEventFlag = fn(event_flag_man: u32, event_flag: u32) -> u8;
+type FnGetEventFlag = unsafe extern "thiscall" fn(event_flag_man: u32, event_flag: u32) -> u8;
 
 pub struct DarkSouls2Vanilla
 {
@@ -30,6 +30,9 @@ impl DarkSouls2Vanilla
 {
     pub fn new() -> Self
     {
+        unsafe extern "thiscall" fn empty(_: u32, _: u32) -> u8 { 0 }
+
+
         DarkSouls2Vanilla
         {
             process: Process::new("darksoulsii.exe"),
@@ -37,7 +40,7 @@ impl DarkSouls2Vanilla
             event_flag_man: Default::default(),
             event_flags: Arc::new(Mutex::new(vec![])),
             set_event_flag_hook: None,
-            fn_get_event_flag: |_,_|{return 0},
+            fn_get_event_flag: empty,
         }
     }
 }
@@ -51,7 +54,7 @@ impl Game for DarkSouls2Vanilla
             unsafe
                 {
                     self.process.refresh()?;
-                    self.event_flag_man = self.process.scan_abs("GameManagerImp", "8B F1 8B 0D ? ? ? 01 8B 01 8B 50 28 FF D2 84 C0 74 0C", 4, vec![0, 0, 0x44, 0x10])?;
+                    self.event_flag_man = self.process.scan_abs("GameManagerImp", "56 ff d2 c7 05 ? ? ? ? 00 00 00 00 5e", 5, vec![0, 0, 0x44, 0x10])?;
                     let get_event_flag_address = self.process.scan_abs("get_event_flag", "55 8b ec 53 56 57 8b 7d 08 b8 ? ? ? ? f7", 0, Vec::new())?.get_base_address();
                     let set_event_flag_address = self.process.scan_abs("set_event_flag", "55 8b ec 83 ec 08 53 56 8b 75 08 b8 ? ? ? ? f7", 0, Vec::new())?.get_base_address();
 
@@ -77,7 +80,7 @@ impl Game for DarkSouls2Vanilla
 
                     info!("event_flag_man base address: 0x{:x}", self.event_flag_man.get_base_address());
                     info!("get event flag address     : 0x{:x}", get_event_flag_address);
-                    info!("get event flag address     : 0x{:x}", get_event_flag_address);
+                    info!("set event flag address     : 0x{:x}", set_event_flag_address);
                 }
         } else {
             self.process.refresh()?;

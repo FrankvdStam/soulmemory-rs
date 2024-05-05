@@ -13,7 +13,7 @@ impl BufferedEventFlags for DarkSouls2Vanilla
     fn get_event_flag_state(&self, event_flag: u32) -> bool
     {
         let event_flag_man_address = self.event_flag_man.read_u32_rel(None);
-        let result = (self.fn_get_event_flag)(event_flag_man_address, event_flag);
+        let result = unsafe { (self.fn_get_event_flag)(event_flag_man_address, event_flag) };
         return result == 1;
     }
 }

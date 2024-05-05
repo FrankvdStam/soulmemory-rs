@@ -68,6 +68,10 @@ impl App
         {
             "mockgame.exe"              => Box::new(MockGame::new()),
             "darksouls.exe"             => Box::new(DarkSoulsPrepareToDieEdition::new()),
+            #[cfg(target_arch = "x86_64")]
+            "darksoulsii.exe"           => Box::new(DarkSouls2ScholarOfTheFirstSin::new()),
+            #[cfg(target_arch = "x86")]
+            "darksoulsii.exe"           => Box::new(DarkSouls2Vanilla::new()),
             "darksoulsremastered.exe"   => Box::new(DarkSoulsRemastered::new()),
             "darksoulsiii.exe"          => Box::new(DarkSouls3::new()),
             "sekiro.exe"                => Box::new(Sekiro::new()),

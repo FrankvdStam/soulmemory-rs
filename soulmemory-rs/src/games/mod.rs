@@ -29,7 +29,6 @@ mod game_ext;
 pub use game::Game;
 pub use game_ext::GameExt;
 
-
 pub use mock_game::MockGame;
 pub use dark_souls_remastered::DarkSoulsRemastered;
 pub use dark_souls_prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
@@ -38,7 +37,15 @@ pub use sekiro::Sekiro;
 pub use elden_ring::EldenRing;
 pub use armored_core_6::ArmoredCore6;
 
+#[cfg(target_arch = "x86")]
+mod dark_souls_2_vanilla;
+#[cfg(target_arch = "x86")]
+pub use dark_souls_2_vanilla::DarkSouls2Vanilla;
 
+#[cfg(target_arch = "x86_64")]
+mod dark_souls_2_scholar_of_the_first_sin;
+#[cfg(target_arch = "x86_64")]
+pub use dark_souls_2_scholar_of_the_first_sin::DarkSouls2ScholarOfTheFirstSin;
 
 pub type ChrDbgFlag = (u32, String, bool);
 

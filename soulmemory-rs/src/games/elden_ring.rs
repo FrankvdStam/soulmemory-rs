@@ -74,7 +74,7 @@ impl Game for EldenRing
             {
                 self.process.refresh()?;
 
-                self.virtual_memory_flag = self.process.scan_rel("VirtualMemoryFlag", "48 8b 3d ? ? ? ? 8b f3 89 5c 24 20 48 85 ff", 3, 7, vec![0])?;
+                self.virtual_memory_flag = self.process.scan_rel("VirtualMemoryFlag", "44 89 7c 24 28 4c 8b 25 ? ? ? ? 4d 85 e4", 3, 7, vec![0x5])?;
 
                 let set_event_flag_address = self.process.scan_abs("set_event_flag", "48 89 5c 24 08 44 8b 49 1c 44 8b d2 33 d2 41 8b c2 41 f7 f1 41 8b d8 4c 8b d9", 0, Vec::new())?.get_base_address();
                 let get_event_flag_address = self.process.scan_abs("get_event_flag", "44 8b 41 1c 44 8b da 33 d2 41 8b c3 41 f7 f0", 0, Vec::new())?.get_base_address();

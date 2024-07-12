@@ -25,6 +25,7 @@ use crate::widgets::chr_dbg_flags_widget::ChrDbgFlagsWidget;
 use crate::widgets::event_flag_widget::EventFlagWidget;
 use crate::widgets::misc_widget::MiscWidget;
 use crate::games::*;
+use crate::widgets::sleep_widget::SleepWidget;
 
 pub struct App
 {
@@ -95,6 +96,7 @@ impl App
                 Box::new(PlayerPositionWidget::new()),
                 Box::new(ChrDbgFlagsWidget::new()),
                 Box::new(MiscWidget::new()),
+                Box::new(SleepWidget::new()),
             }
         }
     }

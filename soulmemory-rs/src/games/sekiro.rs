@@ -15,12 +15,16 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use std::any::Any;
-use std::mem;
+use std::{mem, thread};
+use std::ops::Deref;
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
+use ilhook::x64::{CallbackOption, Hooker, HookFlags, HookPoint, HookType, Registers};
 use retour::static_detour;
 use log::info;
 use mem_rs::prelude::*;
-use crate::games::{ChrDbgFlag, GetSetChrDbgFlags};
+use crate::App;
+use crate::games::{ChrDbgFlag, GameExt, GetSetChrDbgFlags};
 use crate::games::dx_version::DxVersion;
 use crate::games::game::Game;
 use crate::games::traits::player_position::PlayerPosition;
@@ -61,8 +65,10 @@ pub struct Sekiro
     position: Pointer,
     chr_dbg_flags: Pointer,
     fn_get_event_flag: FnGetEventFlag,
+    increment_igt_hook: Option<HookPoint>,
 
     menu_man: Pointer,
+    pub increment_igt_delay_ms: u64,
 }
 
 impl Sekiro
@@ -77,8 +83,9 @@ impl Sekiro
             position: Pointer::default(),
             chr_dbg_flags: Pointer::default(),
             fn_get_event_flag: |_,_|{0},
-
+            increment_igt_hook: None,
             menu_man: Pointer::default(),
+            increment_igt_delay_ms: 0,
         }
     }
 
@@ -179,6 +186,7 @@ impl Game for Sekiro
 
                 let set_event_flag_address = self.process.scan_abs("set_event_flag", "40 55 41 54 41 55 41 56 48 83 ec 58 80 b9 28 02 00 00 00 45 0f b6 e1 45 0f b6 e8 44 8b f2 48 8b e9", 0, Vec::new())?.get_base_address();
                 let get_event_flag_address = self.process.scan_abs("get_event_flag", "40 53 48 83 ec 20 80 b9 28 02 00 00 00 8b da", 0, Vec::new())?.get_base_address();
+                let increment_igt_address = self.process.scan_abs("increment_igt", "48 8b c4 57 48 81 ec e0 00 00 00 48 c7 44 24 38 fe ff ff ff 48 89 58 08", 0, Vec::new())?.get_base_address();
                 self.fn_get_event_flag = mem::transmute(get_event_flag_address);
 
                 let event_flags = Arc::clone(&self.event_flags);
@@ -189,12 +197,31 @@ impl Game for Sekiro
                     STATIC_DETOUR_SET_EVENT_FLAG.call(rdx, event_flag_id, value, r9b);
                 }).unwrap().enable().unwrap();
 
+
+                unsafe extern "win64" fn increment_igt_hook_fn(registers: *mut Registers, _:usize)
+                {
+                    let instance = App::get_instance();
+                    let app = instance.lock().unwrap();
+
+                    if let Some(sekiro) = GameExt::get_game_ref::<Sekiro>(app.game.deref())
+                    {
+                        if sekiro.increment_igt_delay_ms > 0
+                        {
+                            thread::sleep(Duration::from_millis(sekiro.increment_igt_delay_ms));
+                        }
+                    }
+                }
+                let h = Hooker::new(increment_igt_address, HookType::JmpBack(increment_igt_hook_fn), CallbackOption::None, 0, HookFlags::empty());
+                self.increment_igt_hook = Some(h.hook().unwrap());
+
+
                 info!("event_flag_man base address: 0x{:x}", self.event_flag_man.get_base_address());
                 info!("WorldChrManImp base address: 0x{:x}", self.position.get_base_address());
                 info!("chr dbg flags  base address: 0x{:x}", self.chr_dbg_flags.get_base_address());
                 info!("MenuMan        base address: 0x{:x}", self.menu_man.get_base_address());
                 info!("set event flag address     : 0x{:x}", set_event_flag_address);
                 info!("get event flag address     : 0x{:x}", get_event_flag_address);
+                info!("increment igt address      : 0x{:x}", increment_igt_address);
             }
         }
         else

@@ -38,6 +38,19 @@ pub use elden_ring::EldenRing;
 pub use armored_core_6::ArmoredCore6;
 
 #[cfg(target_arch = "x86")]
+mod ilhook
+{
+    pub use ilhook::x86::{CallbackOption, Hooker, HookFlags, HookPoint, HookType, Registers};
+}
+
+#[cfg(target_arch = "x86_64")]
+mod ilhook
+{
+    pub use ilhook::x64::{CallbackOption, Hooker, HookFlags, HookPoint, HookType, Registers};
+}
+
+
+#[cfg(target_arch = "x86")]
 mod dark_souls_2_vanilla;
 #[cfg(target_arch = "x86")]
 pub use dark_souls_2_vanilla::DarkSouls2Vanilla;

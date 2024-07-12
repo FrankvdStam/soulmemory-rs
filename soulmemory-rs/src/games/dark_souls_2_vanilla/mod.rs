@@ -60,22 +60,22 @@ impl Game for DarkSouls2Vanilla
 
                     self.fn_get_event_flag = mem::transmute(get_event_flag_address);
 
-                    unsafe extern "cdecl" fn read_event_flag_hook_fn(reg:*mut Registers, _:usize)
+                    unsafe extern "cdecl" fn set_event_flag_hook_fn(registers: *mut Registers, _:usize)
                     {
                         let instance = App::get_instance();
                         let app = instance.lock().unwrap();
 
                         if let Some(vanilla) = GameExt::get_game_ref::<DarkSouls2Vanilla>(app.game.deref())
                         {
-                            let value           = get_stack_u8((*reg).esp, 0x8);
-                            let event_flag_id   = get_stack_u32((*reg).esp, 0x4);
+                            let value           = get_stack_u8((*registers).esp, 0x8);
+                            let event_flag_id   = get_stack_u32((*registers).esp, 0x4);
 
                             let mut guard = vanilla.event_flags.lock().unwrap();
                             guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value != 0));
                         }
                     }
 
-                    let h = Hooker::new(set_event_flag_address, HookType::JmpBack(read_event_flag_hook_fn), CallbackOption::None, 0, HookFlags::empty());
+                    let h = Hooker::new(set_event_flag_address, HookType::JmpBack(set_event_flag_hook_fn), CallbackOption::None, 0, HookFlags::empty());
                     self.set_event_flag_hook = Some(h.hook().unwrap());
 
                     info!("event_flag_man base address: 0x{:x}", self.event_flag_man.get_base_address());

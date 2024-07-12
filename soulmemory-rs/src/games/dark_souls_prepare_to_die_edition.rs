@@ -78,21 +78,6 @@ impl Game for DarkSoulsPrepareToDieEdition
                 self.event_flag_man = self.process.scan_abs("event flags", "56 8B F1 8B 46 1C 50 A1 ? ? ? ? 32 C9", 8, vec![0, 0, 0])?;
                 let set_event_flag_address = self.process.scan_abs("set_event_flag", "80 b8 14 01 00 00 00 56 8b 74 24 08 74 ? 57 51 50", 0, Vec::new())?.get_base_address();
 
-                unsafe extern "cdecl" fn capture_the_flag(reg:*mut Registers, _:usize)
-                {
-                    let instance = App::get_instance();
-                    let app = instance.lock().unwrap();
-
-                    if let Some(ptde) = GameExt::get_game_ref::<DarkSoulsPrepareToDieEdition>(app.game.deref())
-                    {
-                        let value           = get_stack_u8((*reg).esp, 0x8);
-                        let event_flag_id   = get_stack_u32((*reg).esp, 0x4);
-
-                        let mut guard = ptde.event_flags.lock().unwrap();
-                        guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value != 0));
-                    }
-                }
-
                 let h = Hooker::new(set_event_flag_address, HookType::JmpBack(capture_the_flag), CallbackOption::None, 0, HookFlags::empty());
                 self.set_event_flag_hook = Some(h.hook().unwrap());
 
@@ -176,4 +161,19 @@ fn get_event_flag_offset(even_flag_id: u32) -> (usize, usize)
 
     let mask = 0x80000000 >> (number % 32);
     return (offset, mask);
+}
+
+unsafe extern "cdecl" fn capture_the_flag(reg:*mut Registers, _:usize)
+{
+    let instance = App::get_instance();
+    let app = instance.lock().unwrap();
+
+    if let Some(ptde) = GameExt::get_game_ref::<DarkSoulsPrepareToDieEdition>(app.game.deref())
+    {
+        let value           = get_stack_u8((*reg).esp, 0x8);
+        let event_flag_id   = get_stack_u32((*reg).esp, 0x4);
+
+        let mut guard = ptde.event_flags.lock().unwrap();
+        guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value != 0));
+    }
 }

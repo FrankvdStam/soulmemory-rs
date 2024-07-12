@@ -25,17 +25,11 @@ use log4rs::config::{Appender, Config, Logger, Root};
 pub fn init_log(level: LevelFilter)
 {
     let logfile_path = r#"C:/temp/soulmemory.log"#;
+    let path = std::path::Path::new(logfile_path);
 
-    match fs::try_exists(logfile_path)
+    if path.exists()
     {
-        Ok(exists) =>
-        {
-            if exists
-            {
-                fs::remove_file(logfile_path).unwrap();
-            }
-        }
-        Err(_) => {}
+        fs::remove_file(logfile_path).unwrap();
     }
 
     //Setup logger

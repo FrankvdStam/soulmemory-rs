@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-#![feature(fs_try_exists)]
-
 mod util;
 pub mod app;
 pub mod games;

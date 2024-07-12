@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use std::mem;
+#![allow(dead_code)]
+
 use std::ffi::c_void;
 use ::log::info;
 use windows::Win32::Foundation::HINSTANCE;
@@ -30,7 +31,8 @@ extern "stdcall" {
     fn GetModuleHandleA(lp_module_name: *const u8) -> HINSTANCE;
 }
 
-type XInputGetState = unsafe extern "system" fn(dw_user_index: u32, p_state: *mut XINPUT_STATE) -> u32;
+
+pub type XInputGetState = unsafe extern "system" fn(dw_user_index: u32, p_state: *mut XINPUT_STATE) -> u32;
 
 
 pub fn tas_ai_toggle(toggle_mode: ToggleMode, timer_value: f32, timer_threshold: f32, xinput_state: *mut XINPUT_STATE)
@@ -51,7 +53,7 @@ pub fn tas_ai_toggle(toggle_mode: ToggleMode, timer_value: f32, timer_threshold:
 
 
 
-pub fn get_xinput_get_state_fn() -> XInputGetState
+pub fn get_xinput_get_state_fn_address() -> u64
 {
     unsafe
     {
@@ -69,10 +71,9 @@ pub fn get_xinput_get_state_fn() -> XInputGetState
             {
                 let address = GetProcAddress(hmodule.0 as *const c_void, "XInputGetState\0".as_ptr());
                 info!("{} address 0x{:x}", xinput_version, address as u64);
-                let original_func: XInputGetState = mem::transmute(address);
-                return original_func;
+                return address as u64;
             }
         }
     }
-    panic!("Failed to get XInputGetState");
+    panic!("Failed to get XInputGetState address");
 }

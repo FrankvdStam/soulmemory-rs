@@ -131,7 +131,7 @@ impl Default for App
         App
         {
             game: Box::new(MockGame::new()),
-            hmodule: HINSTANCE(0),
+            hmodule: HINSTANCE(std::ptr::null_mut()),
             server: Server::default(),
             widgets: Vec::new(),
         }

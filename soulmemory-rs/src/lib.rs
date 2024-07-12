@@ -33,7 +33,7 @@ use crate::render_hooks::RenderHooks;
 
 pub use app::App;
 
-static mut HMODULE: HINSTANCE = HINSTANCE(0);
+static mut HMODULE: HINSTANCE = HINSTANCE(std::ptr::null_mut());
 
 #[no_mangle]
 #[allow(non_snake_case)]

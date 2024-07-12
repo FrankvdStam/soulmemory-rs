@@ -35,6 +35,7 @@ pub fn init(title: &str) -> System {
     };
     let event_loop = EventLoop::new().expect("Failed to create EventLoop");
 
+
     let builder = WindowBuilder::new()
         .with_title(title)
         .with_inner_size(LogicalSize::new(1920, 1080));

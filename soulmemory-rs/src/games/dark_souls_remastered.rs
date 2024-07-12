@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
+
 use std::{mem};
 use std::any::Any;
 use std::ops::Deref;
@@ -22,7 +26,7 @@ use ilhook::x64::HookPoint;
 use log::info;
 use mem_rs::prelude::*;
 use windows::Win32::UI::Input::XboxController::XINPUT_STATE;
-use crate::{App};
+use crate::App;
 use crate::games::dx_version::DxVersion;
 use crate::games::game::Game;
 use crate::games::GameExt;
@@ -30,6 +34,7 @@ use crate::games::ilhook::*;
 use crate::tas::tas::{get_xinput_get_state_fn_address, tas_ai_toggle, XInputGetState};
 use crate::tas::toggle_mode::ToggleMode;
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
+
 
 type FnGetEventFlag = fn(event_flag_man: u64, event_flag: u32) -> u8;
 pub struct DarkSoulsRemastered
@@ -73,7 +78,6 @@ impl DarkSoulsRemastered
         }
     }
 
-    #[allow(dead_code)]
     pub fn get_in_game_time_milliseconds(&self) -> u32
     {
         return self.game_data_man.read_u32_rel(Some(0xa4));
@@ -116,46 +120,10 @@ impl Game for DarkSoulsRemastered
                 let get_event_flag_address = self.process.scan_abs("get_event_flag", "40 53 48 83 ec 20 80 b9 24 02 00 00 00 8b da 74 4d", 0, Vec::new())?.get_base_address();
                 self.fn_get_event_flag = mem::transmute(get_event_flag_address);
 
-
-
                 #[cfg(target_arch = "x86_64")]
                 {
-                    unsafe extern "win64" fn set_event_flag_hook_fn(registers: *mut Registers, _:usize)
-                    {
-                        let instance = App::get_instance();
-                        let app = instance.lock().unwrap();
-
-                        if let Some(vanilla) = GameExt::get_game_ref::<DarkSoulsRemastered>(app.game.deref())
-                        {
-                            let event_flag_id = (*registers).rdx as u32;
-                            let value = (*registers).r8 as u8;
-
-                            let mut guard = vanilla.event_flags.lock().unwrap();
-                            guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value != 0));
-                        }
-                    }
-
                     let h = Hooker::new(set_event_flag_address, HookType::JmpBack(set_event_flag_hook_fn), CallbackOption::None, 0, HookFlags::empty());
                     self.set_event_flag_hook = Some(h.hook().unwrap());
-
-                    unsafe extern "win64" fn xinput_get_state_hook_fn(registers: *mut Registers, ori_func_ptr: usize, _: usize) -> usize
-                    {
-                        let original_func: XInputGetState = mem::transmute(ori_func_ptr);
-
-                        let instance = App::get_instance();
-                        let app = instance.lock().unwrap();
-
-                        if let Some(dsr) = GameExt::get_game_ref::<DarkSoulsRemastered>(app.game.deref())
-                        {
-                            let dw_user_index = (*registers).rcx as u32;
-                            let p_state = (*registers).rdx as *mut XINPUT_STATE;
-
-                            let res = original_func(dw_user_index, p_state);
-                            tas_ai_toggle(dsr.ai_timer_toggle_mode, dsr.get_ai_timer_value(), dsr.ai_timer_toggle_threshold, p_state);
-                            return res as usize;
-                        }
-                        panic!("Failed to resolve DSR");
-                    }
 
                     let h = Hooker::new(get_xinput_get_state_fn_address() as usize, HookType::Retn(xinput_get_state_hook_fn), CallbackOption::None, 0, HookFlags::empty());
                     self.xinput_get_state_hook = Some(h.hook().unwrap());
@@ -188,3 +156,38 @@ impl Game for DarkSoulsRemastered
     fn as_any_mut(&mut self) -> &mut dyn Any { self }
 }
 
+#[cfg(target_arch = "x86_64")]
+unsafe extern "win64" fn set_event_flag_hook_fn(registers: *mut Registers, _:usize)
+{
+    let instance = App::get_instance();
+    let app = instance.lock().unwrap();
+
+    if let Some(vanilla) = GameExt::get_game_ref::<DarkSoulsRemastered>(app.game.deref())
+    {
+        let event_flag_id = (*registers).rdx as u32;
+        let value = (*registers).r8 as u8;
+
+        let mut guard = vanilla.event_flags.lock().unwrap();
+        guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value != 0));
+    }
+}
+
+#[cfg(target_arch = "x86_64")]
+unsafe extern "win64" fn xinput_get_state_hook_fn(registers: *mut Registers, ori_func_ptr: usize, _: usize) -> usize
+{
+    let original_func: XInputGetState = mem::transmute(ori_func_ptr);
+
+    let instance = App::get_instance();
+    let app = instance.lock().unwrap();
+
+    if let Some(dsr) = GameExt::get_game_ref::<DarkSoulsRemastered>(app.game.deref())
+    {
+        let dw_user_index = (*registers).rcx as u32;
+        let p_state = (*registers).rdx as *mut XINPUT_STATE;
+
+        let res = original_func(dw_user_index, p_state);
+        tas_ai_toggle(dsr.ai_timer_toggle_mode, dsr.get_ai_timer_value(), dsr.ai_timer_toggle_threshold, p_state);
+        return res as usize;
+    }
+    panic!("Failed to resolve DSR");
+}

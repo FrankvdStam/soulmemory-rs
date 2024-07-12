@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#![allow(dead_code)]
+
 use std::ffi::c_void;
 use ::log::info;
 use windows::Win32::Foundation::HINSTANCE;
@@ -28,6 +30,7 @@ extern "stdcall" {
     fn GetProcAddress(h_module: *const c_void, lp_proc_name: *const u8) -> *const c_void;
     fn GetModuleHandleA(lp_module_name: *const u8) -> HINSTANCE;
 }
+
 
 pub type XInputGetState = unsafe extern "system" fn(dw_user_index: u32, p_state: *mut XINPUT_STATE) -> u32;
 

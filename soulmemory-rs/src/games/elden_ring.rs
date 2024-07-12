@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
 use std::any::Any;
 use std::mem;
 use std::ops::Deref;
@@ -86,26 +89,9 @@ impl Game for EldenRing
 
                 #[cfg(target_arch = "x86_64")]
                 {
-                    unsafe extern "win64" fn set_event_flag_hook_fn(registers: *mut Registers, _:usize)
-                    {
-                        let instance = App::get_instance();
-                        let app = instance.lock().unwrap();
-
-                        if let Some(game) = GameExt::get_game_ref::<EldenRing>(app.game.deref())
-                        {
-                            let event_flag_id = (*registers).rdx as u32;
-                            let value = (*registers).r8 as u8;
-
-                            let mut guard = game.event_flags.lock().unwrap();
-                            guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value != 0));
-                        }
-                    }
-
                     let h = Hooker::new(set_event_flag_address, HookType::JmpBack(set_event_flag_hook_fn), CallbackOption::None, 0, HookFlags::empty());
                     self.set_event_flag_hook = Some(h.hook().unwrap());
                 }
-
-
 
                 info!("event_flag_man base address: 0x{:x}", self.virtual_memory_flag.get_base_address());
                 info!("set event flag address     : 0x{:x}", set_event_flag_address);
@@ -129,4 +115,20 @@ impl Game for EldenRing
         self
     }
     fn as_any_mut(&mut self) -> &mut dyn Any { self }
+}
+
+#[cfg(target_arch = "x86_64")]
+unsafe extern "win64" fn set_event_flag_hook_fn(registers: *mut Registers, _:usize)
+{
+    let instance = App::get_instance();
+    let app = instance.lock().unwrap();
+
+    if let Some(game) = GameExt::get_game_ref::<EldenRing>(app.game.deref())
+    {
+        let event_flag_id = (*registers).rdx as u32;
+        let value = (*registers).r8 as u8;
+
+        let mut guard = game.event_flags.lock().unwrap();
+        guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value != 0));
+    }
 }

@@ -15,8 +15,10 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 pub mod traits;
-mod dark_souls_remastered;
 mod dark_souls_prepare_to_die_edition;
+mod dark_souls_remastered;
+mod dark_souls_2_vanilla;
+mod dark_souls_2_scholar_of_the_first_sin;
 mod dark_souls_3;
 mod sekiro;
 mod elden_ring;
@@ -26,20 +28,11 @@ pub mod dx_version;
 mod game;
 mod game_ext;
 
-pub use game::Game;
-pub use game_ext::GameExt;
-
-pub use mock_game::MockGame;
-pub use dark_souls_remastered::DarkSoulsRemastered;
-pub use dark_souls_prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
-pub use dark_souls_3::DarkSouls3;
-pub use sekiro::Sekiro;
-pub use elden_ring::EldenRing;
-pub use armored_core_6::ArmoredCore6;
 
 #[cfg(target_arch = "x86")]
 mod ilhook
 {
+    #[allow(unused_imports)]
     pub use ilhook::x86::{CallbackOption, Hooker, HookFlags, HookPoint, HookType, Registers};
 }
 
@@ -50,15 +43,19 @@ mod ilhook
 }
 
 
-#[cfg(target_arch = "x86")]
-mod dark_souls_2_vanilla;
-#[cfg(target_arch = "x86")]
-pub use dark_souls_2_vanilla::DarkSouls2Vanilla;
 
-#[cfg(target_arch = "x86_64")]
-mod dark_souls_2_scholar_of_the_first_sin;
-#[cfg(target_arch = "x86_64")]
+pub use game::Game;
+pub use game_ext::GameExt;
+
+pub use dark_souls_prepare_to_die_edition::DarkSoulsPrepareToDieEdition;
+pub use dark_souls_remastered::DarkSoulsRemastered;
+pub use dark_souls_2_vanilla::DarkSouls2Vanilla;
 pub use dark_souls_2_scholar_of_the_first_sin::DarkSouls2ScholarOfTheFirstSin;
+pub use dark_souls_3::DarkSouls3;
+pub use sekiro::Sekiro;
+pub use elden_ring::EldenRing;
+pub use armored_core_6::ArmoredCore6;
+pub use mock_game::MockGame;
 
 pub type ChrDbgFlag = (u32, String, bool);
 

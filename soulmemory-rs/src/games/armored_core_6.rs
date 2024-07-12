@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
 use std::any::Any;
 use std::mem;
 use std::ops::Deref;
@@ -136,7 +139,7 @@ impl Game for ArmoredCore6
     fn as_any_mut(&mut self) -> &mut dyn Any { self }
 }
 
-
+#[cfg(target_arch = "x86_64")]
 unsafe extern "win64" fn set_event_flag_hook_fn(registers: *mut Registers, _:usize)
 {
     let instance = App::get_instance();

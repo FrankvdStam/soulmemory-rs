@@ -7,7 +7,6 @@ edition = "2021"
 crate-type = ["lib", "cdylib"]
 
 [dependencies]
-retour = { version = "0.3.0", features = ["static-detour"] }
 ilhook = "2.1.0"
 
 mem-rs = "0.1.4"

@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use hudhook::HINSTANCE as HUDHOOK_HINSTANCE;
+//use hudhook::{windows::Win32::Foundation::HINSTANCE as HUDHOOK_HINSTANCE, ImguiRenderLoop};
+use hudhook::*;
 use hudhook::Hudhook;
-use hudhook::hooks::{ImguiRenderLoop};
 use hudhook::hooks::dx11::ImguiDx11Hooks;
 use hudhook::hooks::dx12::ImguiDx12Hooks;
 use hudhook::hooks::dx9::ImguiDx9Hooks;
@@ -33,19 +33,19 @@ impl RenderHooks
         let instance = App::get_instance();
         let app = instance.lock().unwrap();
 
+        let render_hooks  = RenderHooks::new();
         let mut builder = Hudhook::builder();
 
         builder = match app.game.get_dx_version()
         {
-            DxVersion::Dx9  =>  builder.with(RenderHooks::new().into_hook::<ImguiDx9Hooks>()),
-            DxVersion::Dx11 =>  builder.with(RenderHooks::new().into_hook::<ImguiDx11Hooks>()),
-            DxVersion::Dx12 =>  builder.with(RenderHooks::new().into_hook::<ImguiDx12Hooks>()),
+            DxVersion::Dx9  => builder.with::<ImguiDx9Hooks>(render_hooks),
+            DxVersion::Dx11 => builder.with::<ImguiDx11Hooks>(render_hooks),
+            DxVersion::Dx12 => builder.with::<ImguiDx12Hooks>(render_hooks),
         };
 
+        //builder.with_hmodule(HUDHOOK_HINSTANCE(app.hmodule.0));
 
-        if let Err(e) = builder.with_hmodule(HUDHOOK_HINSTANCE(app.hmodule.0))
-            .build()
-            .apply()
+        if let Err(e) = builder.build().apply()
         {
             panic!("{:?}", e)
         }

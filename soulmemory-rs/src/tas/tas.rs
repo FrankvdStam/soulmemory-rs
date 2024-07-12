@@ -67,7 +67,7 @@ pub fn get_xinput_get_state_fn_address() -> u64
         for xinput_version in xinput_versions
         {
             let hmodule = GetModuleHandleA(xinput_version.as_ptr());
-            if hmodule != HINSTANCE(0)
+            if hmodule != HINSTANCE(std::ptr::null_mut())
             {
                 let address = GetProcAddress(hmodule.0 as *const c_void, "XInputGetState\0".as_ptr());
                 info!("{} address 0x{:x}", xinput_version, address as u64);

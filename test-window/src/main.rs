@@ -8,7 +8,7 @@ use soulmemory_rs::games::*;
 mod support;
 
 fn main() {
-    App::init(&String::from("mockgame.exe"), HINSTANCE(0));
+    App::init(&String::from("mockgame.exe"), HINSTANCE(std::ptr::null_mut()));
 
     let system = support::init("test window");
     system.main_loop(move |run, ui|

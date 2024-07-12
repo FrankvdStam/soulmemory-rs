@@ -16,17 +16,16 @@
 
 use std::any::Any;
 use std::mem;
+use std::ops::Deref;
 use std::sync::{Arc, Mutex};
-use retour::static_detour;
+use ilhook::x64::{CallbackOption, Hooker, HookFlags, HookPoint, HookType, Registers};
 use log::info;
 use mem_rs::prelude::*;
+use crate::App;
 use crate::games::dx_version::DxVersion;
 use crate::games::traits::buffered_event_flags::{BufferedEventFlags, EventFlag};
 use crate::games::game::Game;
-
-static_detour!{ static STATIC_DETOUR_SET_EVENT_FLAG: fn(u64, u32, u8, u8); }
-
-type FnGetEventFlag = fn(event_flag_man: u64, event_flag: u32) -> u8;
+use crate::games::{GameExt};
 
 pub struct DarkSouls3
 {
@@ -34,7 +33,8 @@ pub struct DarkSouls3
 
     event_flags: Arc<Mutex<Vec<EventFlag>>>,
     event_flag_man: Pointer,
-    fn_get_event_flag: FnGetEventFlag,
+    fn_get_event_flag: fn(event_flag_man: u64, event_flag: u32) -> u8,
+    set_event_flag_hook: Option<HookPoint>,
 }
 
 impl DarkSouls3
@@ -48,6 +48,7 @@ impl DarkSouls3
             event_flags: Arc::new(Mutex::new(Vec::new())),
             event_flag_man: Pointer::default(),
             fn_get_event_flag: |_,_|{0},
+            set_event_flag_hook: None,
         }
     }
 }
@@ -87,13 +88,26 @@ impl Game for DarkSouls3
                 let get_event_flag_address = self.process.scan_abs("get_event_flag", "40 53 48 83 ec 20 80 b9 28 02 00 00 00 8b da 74 4d", 0, Vec::new())?.get_base_address();
                 self.fn_get_event_flag = mem::transmute(get_event_flag_address);
 
-                let event_flags = Arc::clone(&self.event_flags);
-                STATIC_DETOUR_SET_EVENT_FLAG.initialize(mem::transmute(set_event_flag_address), move |rdx: u64, event_flag_id: u32, value: u8, r9b: u8|
+                #[cfg(target_arch = "x86_64")]
                 {
-                    let mut guard = event_flags.lock().unwrap();
-                    guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value == 1));
-                    STATIC_DETOUR_SET_EVENT_FLAG.call(rdx, event_flag_id, value, r9b);
-                }).unwrap().enable().unwrap();
+                    unsafe extern "win64" fn set_event_flag_hook_fn(registers: *mut Registers, _:usize)
+                    {
+                        let instance = App::get_instance();
+                        let app = instance.lock().unwrap();
+
+                        if let Some(game) = GameExt::get_game_ref::<DarkSouls3>(app.game.deref())
+                        {
+                            let event_flag_id = (*registers).rdx as u32;
+                            let value = (*registers).r8 as u8;
+
+                            let mut guard = game.event_flags.lock().unwrap();
+                            guard.push(EventFlag::new(chrono::offset::Local::now(), event_flag_id, value != 0));
+                        }
+                    }
+
+                    let h = Hooker::new(set_event_flag_address, HookType::JmpBack(set_event_flag_hook_fn), CallbackOption::None, 0, HookFlags::empty());
+                    self.set_event_flag_hook = Some(h.hook().unwrap());
+                }
 
                 info!("event_flag_man base address: 0x{:x}", self.event_flag_man.get_base_address());
                 info!("set event flag address     : 0x{:x}", set_event_flag_address);
